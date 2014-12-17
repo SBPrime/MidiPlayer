@@ -1,0 +1,13 @@
+name: MusicPlayer
+main: org.primesoft.musicplayer.MusicPlayerMain
+version: 0.0.1
+website: 
+dev-url: 
+description: 
+authors: [SBPrime]
+commands:
+  test:
+    description: ''
+    usage: /<command>
+    aliases: /test
+permissions:
