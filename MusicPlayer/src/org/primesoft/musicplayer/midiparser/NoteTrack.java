@@ -40,77 +40,33 @@
  */
 package org.primesoft.musicplayer.midiparser;
 
-import java.util.Comparator;
-import org.bukkit.Instrument;
-import org.bukkit.Note.Tone;
-
 /**
  *
  * @author SBPrime
  */
-public class TrackEntry implements Comparable<TrackEntry> {
-    private long m_milis;
-    private final Instrument m_instrument;
-    private int m_octave;
-    private final Tone m_note;
-    private final boolean m_sharp;    
+public class NoteTrack {
+    private final String m_message;
+    private final TrackEntry[] m_notes;
 
-    public long getMilis() {
-        return m_milis;
+    public String getMessage() {
+        return m_message;
+    }
+
+    public TrackEntry[] getNotes() {
+        return m_notes;
+    }
+
+    public boolean isError() {
+        return m_notes == null;
+    }
+
+    public NoteTrack(String message) {
+        m_message = message;
+        m_notes = null;
     }
     
-    public void setMilis(long milis) {
-        m_milis = milis;
-    }
-
-    public Instrument getInstrument() {
-        return m_instrument;
-    }
-
-    public int getOctave() {
-        return m_octave;
-    }
-    
-    public void setOctave(int octave) {
-        m_octave = octave;
-    }
-
-    public Tone getNote() {
-        return m_note;
-    }
-
-    public boolean isSharp() {
-        return m_sharp;
-    }
-
-    public TrackEntry(long milis, Instrument instrument, int octave, int note) {
-        final Tone[] notes = {Tone.C, Tone.C, Tone.D, Tone.D, Tone.E, Tone.F, Tone.F, Tone.G, Tone.G, Tone.A, Tone.A, Tone.B};
-        final boolean[] sharp = {false, true, false, true, false, false, true, false, true, false, true, false};
-
-        m_milis = milis;
-        m_instrument = instrument;
-        m_octave = octave;
-
-        m_note = notes[note];
-        m_sharp = sharp[note];
-    }
-
-    @Override
-    public int compareTo(TrackEntry o) {
-        if (o == null) {
-            return 1;
-        }
-        
-        long diff = m_milis - o.m_milis;
-        
-        if (diff == 0) {
-            return 0;
-        }
-        
-        if (diff < 0) {
-            return -1;
-        }
-        
-        return 1;
+    public NoteTrack(TrackEntry[] notes) {
+        m_message = "";
+        m_notes = notes;
     }
 }
