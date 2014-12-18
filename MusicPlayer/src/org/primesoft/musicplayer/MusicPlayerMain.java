@@ -67,6 +67,11 @@ public class MusicPlayerMain extends JavaPlugin {
     private static String s_prefix = null;
     private static final String s_logFormat = "%s %s";
 
+    /**
+     * The instance of the class
+     */
+    private static MusicPlayerMain s_instance;
+
     private static final Note[] s_notes = new Note[]{
         //        new Note(0, Note.Tone.G, false),
         //        new Note(0, Note.Tone.A, false),
@@ -103,14 +108,25 @@ public class MusicPlayerMain extends JavaPlugin {
         s_log.log(Level.INFO, String.format(s_logFormat, s_prefix, msg));
     }
 
+    /**
+     * The instance of the class
+     *
+     * @return
+     */
+    public static MusicPlayerMain getInstance() {
+        return s_instance;
+    }
+
     private PluginCommand m_commandTest;
 
     private INotePlayer m_notePlayer;
-
+    
     @Override
     public void onEnable() {
         PluginDescriptionFile desc = getDescription();
         s_prefix = String.format("[%s]", desc.getName());
+        s_instance = this;
+
         Server server = getServer();
         String version = server.getVersion();
 
