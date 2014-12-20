@@ -18,7 +18,7 @@ D	note.harp			100%	#Default mapping
 15	note.pling			 20%	#Dulcimer
 16	note.pling			 20%	#Drawbar Organ
 17	random.orb			 20%	#Percussive Organ
-18	random.drink			 25%	#Rock Organ
+18	note.pling			 20%	#Rock Organ
 19	note.pling			 20%	#Church Organ
 20	mob.ghast.affectionate_scream	  5%	#Reed Organ
 21	mob.ghast.affectionate_scream	  5%	#Accordion
@@ -48,10 +48,10 @@ D	note.harp			100%	#Default mapping
 45	note.harp			100%	#Pizzicato Strings
 46	note.harp			100%	#Orchestral Harp
 47	liquid.lavapop			 50%	#Timpani
-48	mob.zombie.unfect		 20%	#String Ensemble 1
-49	mob.zombie.unfect		 20%	#String Ensemble 2
-50	mob.zombie.unfect		 20%	#SynthStrings 1
-51	mob.zombie.unfect		 20%	#SynthStrings 2
+48	note.harp			100%	#String Ensemble 1
+49	note.harp			100%	#String Ensemble 2
+50	note.harp			100%	#SynthStrings 1
+51	note.harp			100%	#SynthStrings 2
 52	mob.zombie.unfect		 20%	#Choir Aahs
 53	mob.ghast.affectionate_scream	  5%	#Voice Oohs
 54	mob.ghast.affectionate_scream	  5%	#Synth Voice

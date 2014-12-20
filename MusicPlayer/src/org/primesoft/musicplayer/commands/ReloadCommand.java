@@ -70,6 +70,7 @@ public class ReloadCommand extends BaseCommand {
 
         Player player = (cs instanceof Player) ? (Player) cs : null;
 
+        m_pluginMain.reloadConfig();
         ReloadConfig(player);
         return true;
     }
@@ -97,6 +98,7 @@ public class ReloadCommand extends BaseCommand {
     private boolean ReloadInstrumentMap(Player player) {
         String mapFileName = ConfigProvider.getInstrumentMapFile();
         File mapFile = new File(ConfigProvider.getPluginFolder(), mapFileName);
+        System.out.println(mapFile);
         if (InstrumentMap.loadMap(mapFile)) {
             MusicPlayerMain.say(player, "Instrument map loaded.");
         } else {

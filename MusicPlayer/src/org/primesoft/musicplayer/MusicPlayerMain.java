@@ -41,23 +41,22 @@
 package org.primesoft.musicplayer;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Server;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.primesoft.musicplayer.commands.ReloadCommand;
-import org.primesoft.musicplayer.midiparser.Instrument;
-import org.primesoft.musicplayer.midiparser.InstrumentMap;
 import org.primesoft.musicplayer.midiparser.MidiParser;
 import org.primesoft.musicplayer.midiparser.NoteTrack;
 import org.primesoft.musicplayer.midiparser.OctaveFilter;
@@ -69,7 +68,7 @@ import org.primesoft.musicplayer.midiparser.TrackEntry;
  */
 public class MusicPlayerMain extends JavaPlugin {
 
-    private static final Logger s_log = Logger.getLogger("Minecraft.MusicPlayer");    
+    private static final Logger s_log = Logger.getLogger("Minecraft.MusicPlayer");
     private static String s_prefix = null;
     private static final String s_logFormat = "%s %s";
 
@@ -121,10 +120,14 @@ public class MusicPlayerMain extends JavaPlugin {
 
     private PluginCommand m_commandTest;
 
+    private BukkitScheduler m_scheduler;
+
     /**
      * The plugin version
      */
     private String m_version;
+
+    private final HashMap<String, List<TrackEntry>> m_playerTracks = new HashMap<String, List<TrackEntry>>();
 
     public String getVersion() {
         return m_version;
@@ -144,6 +147,8 @@ public class MusicPlayerMain extends JavaPlugin {
         m_commandReload = getCommand("mpreload");
         m_commandReload.setExecutor(commandHandler);
 
+        m_scheduler = server.getScheduler();
+
         if (!commandHandler.ReloadConfig(null)) {
             log("Error loading config");
             return;
@@ -157,8 +162,8 @@ public class MusicPlayerMain extends JavaPlugin {
         Player player = sender instanceof Player ? (Player) sender : null;
 
         if (player != null) {
-            if (command.equals(m_commandTest) && args != null && args.length == 1) {
-                doMusicTest(player, args[0]);
+            if (command.equals(m_commandTest)) {
+                doMusicTest(player, args.length == 1 ? args[0] : null);
                 return true;
             }
         }
@@ -166,16 +171,30 @@ public class MusicPlayerMain extends JavaPlugin {
         return super.onCommand(sender, command, label, args);
     }
 
-
     private void doMusicTest(final Player player, String fileName) {
         final int TICK_LEN = 50;
-        final int TICK_MIN = 50;
+        final int TICK_MIN = 5;
 
         final Location location = player.getLocation();
-
-        final BukkitScheduler scheduler = getServer().getScheduler();
         final JavaPlugin plugin = this;
+        String name = player.getName();
 
+        final List<TrackEntry> notes;
+        synchronized (m_playerTracks) {
+            if (m_playerTracks.containsKey(name)) {
+                notes = m_playerTracks.get(name);
+                synchronized (notes) {
+                    notes.clear();
+                }
+            } else {
+                notes = new ArrayList<TrackEntry>();
+                m_playerTracks.put(name, notes);
+            }
+        }
+
+        if (fileName == null) {
+            return;
+        }
         NoteTrack track = MidiParser.loadFile(
                 new File(getDataFolder(), fileName),
                 EnumSet.of(OctaveFilter.MoveToMin, OctaveFilter.Modulo));
@@ -184,36 +203,52 @@ public class MusicPlayerMain extends JavaPlugin {
             return;
         }
 
-        final TrackEntry[] notes = track.getNotes();
-        final int notesCnt = notes.length;
+        synchronized (notes) {
+            for (TrackEntry te : track.getNotes()) {
+                notes.add(te);
+            }
+        }
 
         final Runnable task = new Runnable() {
-            private int m_pos = 0;
-
             @Override
             public void run() {
                 TrackEntry current;
-                TrackEntry next = notes[m_pos];
+                TrackEntry next;
+
+                synchronized (notes) {
+                    if (notes.isEmpty()) {
+                        next = null;
+                    } else {
+                        next = notes.get(0);
+                        notes.remove(0);
+                    }
+                }
                 long delay;
 
                 do {
-                    m_pos++;
                     current = next;
-                    next = m_pos < notesCnt ? notes[m_pos] : null;
+                    if (notes.isEmpty()) {
+                        next = null;
+                    } else {
+                        next = notes.get(0);
+                        notes.remove(0);
+                    }
 
-                    current.play(player, location);
+                    if (current != null) {
+                        current.play(player, location);
+                    }
                     delay = next != null ? next.getMilis() : Integer.MAX_VALUE;
                     //System.out.println(m_pos +" " + delay);
                 } while (delay < TICK_MIN);
 
                 if (next != null) {
-                    long waitTicks = (long) Math.round((double) delay / TICK_LEN) - 1;
+                    long waitTicks = (long) Math.round((double) delay / TICK_LEN);
                     //System.out.println("Wait " + delay + " " + waitTicks);
-                    scheduler.runTaskLater(plugin, this, waitTicks);
+                    m_scheduler.runTaskLater(plugin, this, waitTicks);
                 }
             }
         };
 
-        scheduler.runTaskLater(this, task, 1);
+        m_scheduler.runTaskLater(this, task, 1);
     }
 }

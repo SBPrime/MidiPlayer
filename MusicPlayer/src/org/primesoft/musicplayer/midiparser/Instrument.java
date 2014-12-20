@@ -89,6 +89,5 @@ public class Instrument {
         m_program = program;
         m_patch = patch;
         m_volumeScale = volumeScale;
-        System.out.println("New instrument #" + program + " " +patch + " " + volumeScale);
     }
 }

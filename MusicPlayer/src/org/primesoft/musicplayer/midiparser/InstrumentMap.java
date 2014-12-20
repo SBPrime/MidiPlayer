@@ -67,11 +67,13 @@ public class InstrumentMap {
 
     public static Instrument getInstrument(int program) {
         synchronized (s_mutex) {
+            Instrument instrument = null;
             if (s_instruments.containsKey(program)) {
-                return s_instruments.get(program);
+                instrument = s_instruments.get(program);
             }
 
-            return null;
+            System.out.println("!! " + program + " " + (instrument != null ? instrument.getPatch() : "null"));
+            return instrument;
         }
     }
 

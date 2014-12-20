@@ -4,4 +4,4 @@ musicPlayer:
   #check for updates
   checkVersion: true
   #File containing instrument mapping
-  strings: "default.map"
+  map: default.map
