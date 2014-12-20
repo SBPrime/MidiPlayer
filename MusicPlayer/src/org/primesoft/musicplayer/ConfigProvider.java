@@ -38,99 +38,109 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.midiparser;
+package org.primesoft.musicplayer;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
+ * This class contains configuration
  *
  * @author SBPrime
  */
-public class TrackEntry implements Comparable<TrackEntry> {
+public class ConfigProvider {
 
-    private long m_milis;
-    private final String m_instrumentPatch;
-    private int m_octave;
-    private final int m_note;
-    private final float m_volume;
-    private float m_frq;
+    /**
+     * Number of ticks in one second
+     */
+    public static final int TICKS_PER_SECOND = 20;
 
-    public long getMilis() {
-        return m_milis;
+    /**
+     * The config file version
+     */
+    private static final int CONFIG_VERSION = 1;
+
+    private static boolean m_checkUpdate = false;
+
+    private static boolean m_isConfigUpdate = false;
+
+    private static String m_configVersion;
+
+    private static File m_pluginFolder;
+
+    private static String m_instrumentMap;
+
+    /**
+     * Plugin root folder
+     *
+     * @return
+     */
+    public static File getPluginFolder() {
+        return m_pluginFolder;
     }
 
-    public void setMilis(long milis) {
-        m_milis = milis;
+    /**
+     * Get the config version
+     *
+     * @return Current config version
+     */
+    public static String getConfigVersion() {
+        return m_configVersion;
     }
 
-    public int getOctave() {
-        return m_octave;
+    /**
+     * Is update checking enabled
+     *
+     * @return true if enabled
+     */
+    public static boolean getCheckUpdate() {
+        return m_checkUpdate;
     }
 
-    public void setOctave(int octave) {
-        m_octave = octave;
-
-        updateFrq();
+    /**
+     * Is the configuration up to date
+     *
+     * @return
+     */
+    public static boolean isConfigUpdated() {
+        return m_isConfigUpdate;
     }
 
-    public TrackEntry(long milis, Instrument instrument, int octave, int note, float volume) {
-        float scale;
-
-        if (instrument != null) {
-            scale = Math.max(0, instrument.getVolumeScale());
-            m_instrumentPatch = instrument.getPatch();
-        } else {
-            scale = 0.0f;
-            m_instrumentPatch = null;
-        }
-
-        m_milis = milis;
-        m_octave = octave;
-        m_volume = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
-
-        m_note = note % 12;
-
-        updateFrq();
+    public static String getInstrumentMapFile() {
+        return m_instrumentMap;
     }
 
-    @Override
-    public int compareTo(TrackEntry o) {
-        if (o == null) {
-            return 1;
+    /**
+     * Load configuration
+     *
+     * @param plugin parent plugin
+     * @return true if config loaded
+     */
+    public static boolean load(JavaPlugin plugin) {
+        if (plugin == null) {
+            return false;
         }
 
-        long diff = m_milis - o.m_milis;
+        plugin.saveDefaultConfig();
+        m_pluginFolder = plugin.getDataFolder();
 
-        if (diff == 0) {
-            return 0;
+        Configuration config = plugin.getConfig();
+        ConfigurationSection mainSection = config.getConfigurationSection("musicPlayer");
+        if (mainSection == null) {
+            return false;
         }
 
-        if (diff < 0) {
-            return -1;
-        }
+        m_configVersion = mainSection.getString("version", "?");
+        m_checkUpdate = mainSection.getBoolean("checkVersion", true);
+        m_isConfigUpdate = mainSection.getInt("version", 0) == CONFIG_VERSION;
+        m_instrumentMap = mainSection.getString("map", "");
 
-        return 1;
-    }
-
-    private void updateFrq() {
-        m_frq = (float) Math.pow(2, (m_note + 12 * m_octave - 12.0) / 12.0);
-    }
-
-    public void play(Player player, Location location) {
-        if (m_instrumentPatch == null
-                || m_volume == 0
-                || player == null || !player.isOnline()) {
-            return;
-        }
-
-        if (location == null) {
-            location = player.getLocation();
-        }
-
-        if (m_frq < 0 || m_frq > 2) {
-            return;
-        }
-        player.playSound(location, m_instrumentPatch, m_volume, m_frq);
+        return true;
     }
 }

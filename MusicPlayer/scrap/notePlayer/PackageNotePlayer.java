@@ -66,7 +66,7 @@ public class PackageNotePlayer implements INotePlayer {
      * @return
      */
     private static float getNoteFrequency(int id) {
-        return (float) Math.pow(2.0D, (double)(id - 12D) / 12.0D);
+        return (float) Math.pow(2.0D, (double) (id - 12D) / 12.0D);
     }
 
     /**
@@ -157,8 +157,8 @@ public class PackageNotePlayer implements INotePlayer {
                 || sendPacketMethod == null || packetPlayOutNamedSoundEffectConstructor == null) {
             return null;
         }
-        
-        return new PackageNotePlayer(playerHandleMethod, handleConnectionField, 
+
+        return new PackageNotePlayer(playerHandleMethod, handleConnectionField,
                 sendPacketMethod, packetPlayOutNamedSoundEffectConstructor);
     }
 
@@ -171,7 +171,7 @@ public class PackageNotePlayer implements INotePlayer {
         m_sendPacketMethod = sendPacketMethod;
 
         m_isEnabled = true;
-        
+
         MusicPlayerMain.log("PackageNotePlayer initialized.");
     }
 

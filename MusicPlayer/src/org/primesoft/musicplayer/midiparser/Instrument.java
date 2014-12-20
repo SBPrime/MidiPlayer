@@ -40,97 +40,55 @@
  */
 package org.primesoft.musicplayer.midiparser;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 /**
  *
  * @author SBPrime
  */
-public class TrackEntry implements Comparable<TrackEntry> {
+public class Instrument {
 
-    private long m_milis;
-    private final String m_instrumentPatch;
-    private int m_octave;
-    private final int m_note;
-    private final float m_volume;
-    private float m_frq;
+    /**
+     * Instrument path
+     */
+    private final String m_patch;
 
-    public long getMilis() {
-        return m_milis;
+    /**
+     * MIDI program id
+     */
+    private final int m_program;
+
+    /**
+     * The volume scale
+     */
+    private final float m_volumeScale;
+
+    /**
+     * Sound patch
+     * @return 
+     */
+    public String getPatch() {
+        return m_patch;
     }
-
-    public void setMilis(long milis) {
-        m_milis = milis;
+    
+    /**
+     * MIDI program id
+     * @return 
+     */
+    public int getProgramId() {
+        return m_program;
     }
-
-    public int getOctave() {
-        return m_octave;
+    
+    /**
+     * Get the volume scale
+     * @return 
+     */
+    public float getVolumeScale() {
+        return m_volumeScale;
     }
-
-    public void setOctave(int octave) {
-        m_octave = octave;
-
-        updateFrq();
-    }
-
-    public TrackEntry(long milis, Instrument instrument, int octave, int note, float volume) {
-        float scale;
-
-        if (instrument != null) {
-            scale = Math.max(0, instrument.getVolumeScale());
-            m_instrumentPatch = instrument.getPatch();
-        } else {
-            scale = 0.0f;
-            m_instrumentPatch = null;
-        }
-
-        m_milis = milis;
-        m_octave = octave;
-        m_volume = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
-
-        m_note = note % 12;
-
-        updateFrq();
-    }
-
-    @Override
-    public int compareTo(TrackEntry o) {
-        if (o == null) {
-            return 1;
-        }
-
-        long diff = m_milis - o.m_milis;
-
-        if (diff == 0) {
-            return 0;
-        }
-
-        if (diff < 0) {
-            return -1;
-        }
-
-        return 1;
-    }
-
-    private void updateFrq() {
-        m_frq = (float) Math.pow(2, (m_note + 12 * m_octave - 12.0) / 12.0);
-    }
-
-    public void play(Player player, Location location) {
-        if (m_instrumentPatch == null
-                || m_volume == 0
-                || player == null || !player.isOnline()) {
-            return;
-        }
-
-        if (location == null) {
-            location = player.getLocation();
-        }
-
-        if (m_frq < 0 || m_frq > 2) {
-            return;
-        }
-        player.playSound(location, m_instrumentPatch, m_volume, m_frq);
+    
+    public Instrument(int program, String patch, float volumeScale) {
+        m_program = program;
+        m_patch = patch;
+        m_volumeScale = volumeScale;
+        System.out.println("New instrument #" + program + " " +patch + " " + volumeScale);
     }
 }

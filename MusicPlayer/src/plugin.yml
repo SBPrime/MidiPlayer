@@ -6,8 +6,24 @@ dev-url:
 description: 
 authors: [SBPrime]
 commands:
+  mpreload:
+    description: 'Reload the config'
+    usage: /<command>
+    permission: music.player.admin.reload
   test:
     description: ''
-    usage: /<command>
-    aliases: /test
+    usage: /<command>    
 permissions:
+  musicplayer.*:
+    description: Grants access to all MusicPlayer permissions
+    default: op
+    children:      
+      musicplayer.admin.*: true
+  musicplayer.admin.*:
+    description: Grants access to all MusicPlayer admin permissions
+    default: op
+    children:      
+      musicplayer.admin.reload: true
+  musicplayer.admin.reload:
+    description: Allows you to reload MusicPlayer config
+    default: op

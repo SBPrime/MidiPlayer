@@ -44,10 +44,9 @@ import java.io.File;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.Instrument;
 import org.bukkit.Location;
-import org.bukkit.Note;
 import org.bukkit.Server;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -56,13 +55,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.primesoft.musicplayer.commands.ReloadCommand;
+import org.primesoft.musicplayer.midiparser.Instrument;
+import org.primesoft.musicplayer.midiparser.InstrumentMap;
 import org.primesoft.musicplayer.midiparser.MidiParser;
 import org.primesoft.musicplayer.midiparser.NoteTrack;
 import org.primesoft.musicplayer.midiparser.OctaveFilter;
 import org.primesoft.musicplayer.midiparser.TrackEntry;
-import org.primesoft.musicplayer.notePlayer.ApiNotePlayer;
-import org.primesoft.musicplayer.notePlayer.INotePlayer;
-import org.primesoft.musicplayer.notePlayer.PackageNotePlayer;
 
 /**
  *
@@ -70,8 +69,7 @@ import org.primesoft.musicplayer.notePlayer.PackageNotePlayer;
  */
 public class MusicPlayerMain extends JavaPlugin {
 
-    private static final Logger s_log = Logger.getLogger("Minecraft.MusicPlayer");
-    private static ConsoleCommandSender s_console;
+    private static final Logger s_log = Logger.getLogger("Minecraft.MusicPlayer");    
     private static String s_prefix = null;
     private static final String s_logFormat = "%s %s";
 
@@ -92,16 +90,16 @@ public class MusicPlayerMain extends JavaPlugin {
 
         s_log.log(Level.INFO, String.format(s_logFormat, s_prefix, msg));
     }
-    
-    
+
     /**
      * Sent message directly to player
+     *
      * @param player
-     * @param msg 
+     * @param msg
      */
     public static void say(Player player, String msg) {
         if (player == null) {
-            s_console.sendRawMessage(msg);
+            log(msg);
         } else {
             player.sendRawMessage(msg);
         }
@@ -116,40 +114,40 @@ public class MusicPlayerMain extends JavaPlugin {
         return s_instance;
     }
 
+    /**
+     * The plugin root command
+     */
+    private PluginCommand m_commandReload;
+
     private PluginCommand m_commandTest;
 
-    private INotePlayer m_notePlayer;
+    /**
+     * The plugin version
+     */
+    private String m_version;
+
+    public String getVersion() {
+        return m_version;
+    }
 
     @Override
     public void onEnable() {
         Server server = getServer();
-        String version = server.getVersion();
-
         PluginDescriptionFile desc = getDescription();
         s_prefix = String.format("[%s]", desc.getName());
         s_instance = this;
-        s_console = server.getConsoleSender();
-        
-        boolean useApi = false;
 
-        if (version.toUpperCase().contains("SPIGOT")) {
-            useApi = version.compareToIgnoreCase("git-Spigot-fffffff-fffffff") >= 0;
-        } else if (version.toUpperCase().contains("BUKKIT")) {
-            useApi = version.compareToIgnoreCase("git-Bukkit-fffffff") >= 0;
-        }
+        m_version = desc.getVersion();
 
-        if (!useApi) {
-            m_notePlayer = PackageNotePlayer.create(server);
-            if (m_notePlayer == null) {
-                log("Unable to create package note player. Using API fallback. Hopefully its fixed.");
-            }
-        }
-
-        if (m_notePlayer == null) {
-            m_notePlayer = new ApiNotePlayer();
-        }
-
+        ReloadCommand commandHandler = new ReloadCommand(this);
         m_commandTest = getCommand("test");
+        m_commandReload = getCommand("mpreload");
+        m_commandReload.setExecutor(commandHandler);
+
+        if (!commandHandler.ReloadConfig(null)) {
+            log("Error loading config");
+            return;
+        }
 
         super.onEnable();
     }
@@ -157,7 +155,7 @@ public class MusicPlayerMain extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player = sender instanceof Player ? (Player) sender : null;
-        
+
         if (player != null) {
             if (command.equals(m_commandTest) && args != null && args.length == 1) {
                 doMusicTest(player, args[0]);
@@ -168,10 +166,11 @@ public class MusicPlayerMain extends JavaPlugin {
         return super.onCommand(sender, command, label, args);
     }
 
+
     private void doMusicTest(final Player player, String fileName) {
         final int TICK_LEN = 50;
         final int TICK_MIN = 50;
-        
+
         final Location location = player.getLocation();
 
         final BukkitScheduler scheduler = getServer().getScheduler();
@@ -187,7 +186,7 @@ public class MusicPlayerMain extends JavaPlugin {
 
         final TrackEntry[] notes = track.getNotes();
         final int notesCnt = notes.length;
-        
+
         final Runnable task = new Runnable() {
             private int m_pos = 0;
 
@@ -196,24 +195,20 @@ public class MusicPlayerMain extends JavaPlugin {
                 TrackEntry current;
                 TrackEntry next = notes[m_pos];
                 long delay;
-                
+
                 do {
                     m_pos++;
                     current = next;
-                    next = m_pos < notesCnt ? notes[m_pos] : null;                                        
-                                        
-                    m_notePlayer.playNote(player, location, 
-                            current.getInstrument(), 
-                            current.isSharp() ? 
-                                    Note.sharp(current.getOctave(), current.getNote()) :
-                                    Note.natural(current.getOctave(), current.getNote()));
+                    next = m_pos < notesCnt ? notes[m_pos] : null;
+
+                    current.play(player, location);
                     delay = next != null ? next.getMilis() : Integer.MAX_VALUE;
-//                    System.out.println(m_pos +" " + delay);
+                    //System.out.println(m_pos +" " + delay);
                 } while (delay < TICK_MIN);
-                
+
                 if (next != null) {
-                    long waitTicks = (long)Math.round((double)delay / TICK_LEN) - 1;
-//                    System.out.println("Wait " + delay + " " + waitTicks);
+                    long waitTicks = (long) Math.round((double) delay / TICK_LEN) - 1;
+                    //System.out.println("Wait " + delay + " " + waitTicks);
                     scheduler.runTaskLater(plugin, this, waitTicks);
                 }
             }

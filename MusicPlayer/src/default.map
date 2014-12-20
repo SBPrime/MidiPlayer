@@ -1,0 +1,130 @@
+#ProgramID | Sound patch | Base volume
+D	note.harp			100%	#Default mapping
+0	note.harp			100%	#Acoustic Grand Piano
+1	note.pling			 20%	#Bright Acoustic Piano
+2	note.pling			 20%	#Electric Grand Piano
+3	note.pling			 20%	#Honky-tonk Piano
+4	note.harp			100%	#Electric Piano 1
+5	note.harp			100%	#Electric Piano 2
+6	note.pling			 20%	#Harpsichord
+7	note.pling			 20%	#Clavi
+8	mob.blaze.hit			 10%	#Celesta
+9	random.orb			 20%	#Glockenspiel
+10	random.orb			 20%	#Music Box
+11	random.orb			 20%	#Vibraphone
+12	random.orb			 20%	#Marimba
+13	note.pling			 20%	#Xylophone
+14	random.anvil_land 		 10%	#Tubular Bells
+15	note.pling			 20%	#Dulcimer
+16	note.pling			 20%	#Drawbar Organ
+17	random.orb			 20%	#Percussive Organ
+18	random.drink			 25%	#Rock Organ
+19	note.pling			 20%	#Church Organ
+20	mob.ghast.affectionate_scream	  5%	#Reed Organ
+21	mob.ghast.affectionate_scream	  5%	#Accordion
+22	note.pling			 20%	#Harmonica
+23	note.pling			 20%	#Tango Accordion
+24	note.pling			 20%	#Acoustic Guitar (nylon)
+25	note.pling			 20%	#Acoustic Guitar (steel)
+26	note.harp			100%	#Electric Guitar (jazz)
+27	note.harp			100%	#Electric Guitar (clean)
+28	note.snare			100%	#Electric Guitar (muted)
+29	note.pling			 20%	#Overdriven Guitar
+30	note.pling			 20%	#Distortion Guitar
+31	note.pling			 20%	#Guitar harmonics
+32	note.bassattack			100%	#Acoustic Bass
+33	note.pling			 20%	#Electric Bass (finger)
+34	note.pling			 20%	#Electric Bass (pick)
+35	note.bassattack			100%	#Fretless Bass
+36	note.pling			 20%	#Slap Bass 1
+37	note.pling			 20%	#Slap Bass 2
+38	note.bassattack			100%	#Synth Bass 1
+39	note.bassattack			100%	#Synth Bass 2
+40	note.pling			 20%	#Violin
+41	note.pling			 20%	#Viola
+42	note.pling			 20%	#Cello
+43	note.harp			100%	#Contrabass
+44	note.harp			100%	#Tremolo Strings
+45	note.harp			100%	#Pizzicato Strings
+46	note.harp			100%	#Orchestral Harp
+47	liquid.lavapop			 50%	#Timpani
+48	mob.zombie.unfect		 20%	#String Ensemble 1
+49	mob.zombie.unfect		 20%	#String Ensemble 2
+50	mob.zombie.unfect		 20%	#SynthStrings 1
+51	mob.zombie.unfect		 20%	#SynthStrings 2
+52	mob.zombie.unfect		 20%	#Choir Aahs
+53	mob.ghast.affectionate_scream	  5%	#Voice Oohs
+54	mob.ghast.affectionate_scream	  5%	#Synth Voice
+55	random.bowhit			 50%	#Orchestra Hit
+56	mob.ghast.affectionate_scream	  5%	#Trumpet
+57	mob.ghast.affectionate_scream	  5%	#Trombone
+58	mob.ghast.affectionate_scream	  5%	#Tuba
+59	mob.ghast.affectionate_scream	  5%	#Muted Trumpet
+60	note.harp			100%	#French Horn
+61	note.harp			100%	#Brass Section
+62	note.bassattack			100%	#SynthBrass 1
+63	note.bassattack			100%	#SynthBrass 2
+64	note.harp			100%	#Soprano Sax
+65	note.harp			100%	#Alto Sax
+66	mob.ghast.affectionate_scream	  5%	#Tenor Sax
+67	mob.ghast.affectionate_scream	  5%	#Baritone Sax
+68	note.harp			100%	#Oboe
+69	note.harp			100%	#English Horn
+70	note.harp			100%	#Bassoon
+71	note.harp			100%	#Clarinet
+72	mob.ghast.affectionate_scream	  5%	#Piccolo
+73	mob.ghast.affectionate_scream	  5%	#Flute
+74	mob.ghast.affectionate_scream	  5%	#Recorder
+75	mob.zombie.unfect		 20%	#Pan Flute
+76	mob.zombie.unfect		 20%	#Blown Bottle
+77	mob.zombie.unfect		 20%	#Shakuhachi
+78	mob.ghast.affectionate_scream	  5%	#Whistle
+79	mob.ghast.affectionate_scream	  5%	#Ocarina
+80	note.harp			100%	#Lead 1 (square)
+81	note.harp			100%	#Lead 2 (sawtooth)
+82	note.harp			100%	#Lead 3 (calliope)
+83	note.pling			 20%	#Lead 4 (chiff)
+84	note.pling			 20%	#Lead 5 (charang)
+85	mob.zombie.unfect		 20%	#Lead 6 (voice)
+86	mob.zombie.unfect		 20%	#Lead 7 (fifths)
+87	note.pling			 20%	#Lead 8 (bass + lead)
+88	random.orb			 20%	#Pad 1 (new age)
+89	mob.zombie.unfect		 20%	#Pad 2 (warm)
+90	note.pling			 20%	#Pad 3 (polysynth)
+91	mob.ghast.affectionate_scream	  5%	#Pad 4 (choir)
+92	random.orb			 20%	#Pad 5 (bowed)
+93	note.pling			 20%	#Pad 6 (metallic)
+94	mob.zombie.unfect		 20%	#Pad 7 (halo)
+95	mob.horse.donkey.death		  5%	#Pad 8 (sweep)
+96	note.harp			100%	#FX 1 (rain)
+97	mob.ghast.affectionate_scream	  5%	#FX 2 (soundtrack)
+98	random.anvil_land 		 10%	#FX 3 (crystal)
+99	note.bassattack			100%	#FX 4 (atmosphere)
+100	mob.ghast.affectionate_scream	  5%	#FX 5 (brightness)
+101	note.harp			100%	#FX 6 (goblins)
+102	mob.zombie.unfect		 20%	#FX 7 (echoes)
+103	mob.ghast.affectionate_scream	  5%	#FX 8 (sci-fi)
+104	note.bassattack			100%	#Sitar
+105	note.bassattack			100%	#Banjo
+106	note.bassattack			100%	#Shamisen
+107	note.bassattack			100%	#Koto
+108	mob.chicken.plop		 25%	#Kalimba
+109	mob.ghast.affectionate_scream	  5%	#Bag pipe
+110	note.pling			 20%	#Fiddle
+111	note.pling			 20%	#Shanai
+112	random.orb			 20%	#Tinkle Bell
+113	random.pop			 20%	#Agogo
+114	note.pling			 20%	#Steel Drums
+115	note.hat			 75%	#Woodblock
+116	note.snare			100%	#Taiko Drum
+117	random.pop			 20%	#Melodic Tom
+118	note.snare			100%	#Synth Drum
+119	ambient.weather.rain		 10%	#Reverse Cymbal
+120	random.chestclosed		 20%	#Guitar Fret Noise
+121	note.bassattack			100%	#Breath Noise
+122	ambient.weather.rain		 10%	#Seashore
+123	mob.zombie.unfect		 20%	#Bird Tweet
+124	mob.zombie.unfect		 20%	#Telephone Ring
+125	ambient.weather.rain		 10%	#Helicopter
+126	ambient.weather.rain		 10%	#Applause
+127	random.explode			 25%	#Gunshot

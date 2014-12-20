@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
@@ -54,7 +55,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-import org.bukkit.Instrument;
+import org.bukkit.Sound;
 import org.primesoft.musicplayer.utils.InOutParam;
 
 /**
@@ -62,6 +63,7 @@ import org.primesoft.musicplayer.utils.InOutParam;
  * @author SBPrime
  */
 public class MidiParser {
+
     private final static int MIN_OCTAVE = 0;
     private final static int MAX_OCTAVE = 1;
     private final static int CNT_OCTAVE = MAX_OCTAVE - MIN_OCTAVE;
@@ -85,8 +87,8 @@ public class MidiParser {
         float divType = sequence.getDivisionType();
 
         if (divType != Sequence.PPQ) {
-            return new NoteTrack("Unsupported DivisionType " + 
-                    ElementFormater.getDivisionName(divType));
+            return new NoteTrack("Unsupported DivisionType "
+                    + ElementFormater.getDivisionName(divType));
         }
 
         int resolution = sequence.getResolution();
@@ -94,8 +96,10 @@ public class MidiParser {
 
         List<TrackEntry> result = new ArrayList<TrackEntry>();
 
+        HashMap<Integer, Instrument> instruments = new HashMap<Integer, Instrument>();
         for (Track track : sequence.getTracks()) {
-            List<TrackEntry> notes = parseTrack(track, tempo, resolution);
+            List<TrackEntry> notes = parseTrack(track, tempo, resolution,
+                    instruments);
 
             boolean filterResult = filterOctave(notes, octaveFilter == null ? EnumSet.of(OctaveFilter.None) : octaveFilter);
 
@@ -103,22 +107,23 @@ public class MidiParser {
                 result.addAll(notes);
             }
         }
-        
+
         Collections.sort(result);
         convertToDelta(result);
-        
+
         return new NoteTrack(result.toArray(new TrackEntry[0]));
     }
 
-    private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo, int resolution) {
+    private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo, 
+            int resolution, HashMap<Integer, Instrument> instruments) {
         double lTempo = tempo.getValue();
-
-        Instrument instrument = Instrument.PIANO;
+        
         List<TrackEntry> result = new ArrayList<TrackEntry>();
 
         for (int idx = 0; idx < track.size(); idx++) {
             MidiEvent event = track.get(idx);
             MidiMessage message = event.getMessage();
+            
             long tick = event.getTick();
             long milis;
 
@@ -145,19 +150,24 @@ public class MidiParser {
                 }
             } else if (message instanceof ShortMessage) {
                 ShortMessage sm = (ShortMessage) message;
+                int channel = sm.getChannel();
                 switch (sm.getCommand() & 0xff) {
                     case ShortMessage.NOTE_ON: {
-                        if (sm.getData2() > 0 && milis >= 0) {
+                        int velocity = sm.getData2();
+                        if (velocity > 0 && milis >= 0) {
                             int key = sm.getData1();
                             int octave = (key / 12) - 1;
                             int note = key % 12;
 
-                            result.add(new TrackEntry(milis, instrument, octave, note));
+                            Instrument instrument = getInstrument(instruments, channel);
+                            if (instrument != null) {
+                                result.add(new TrackEntry(milis, instrument, octave, note, velocity / 127.0f));
+                            }
                         }
                         break;
                     }
                     case ShortMessage.PROGRAM_CHANGE:
-                        instrument = InstrumentMap.getInstrument(sm.getData1());
+                        setInstrument(instruments, channel, InstrumentMap.getInstrument(sm.getData1()));
                         break;
                 }
             }
@@ -228,12 +238,36 @@ public class MidiParser {
         if (notes == null || notes.isEmpty()) {
             return;
         }
-        
+
         long last = notes.get(0).getMilis();
         for (TrackEntry entry : notes) {
             long milis = entry.getMilis();
             entry.setMilis(milis - last);
             last = milis;
         }
+    }
+
+    private static Instrument getInstrument(HashMap<Integer, Instrument> instruments, int channel) {
+        if (instruments == null) {
+            return null;
+        }
+        
+        if (instruments.containsKey(channel)) {
+            return instruments.get(channel);
+        }
+        
+        return InstrumentMap.getDefault();
+    }
+
+    private static void setInstrument(HashMap<Integer, Instrument> instruments, int channel, Instrument instrument) {
+        if (instruments == null) {
+            return;
+        }
+        
+        if (instruments.containsKey(channel)) {
+            instruments.remove(channel);
+        }
+        
+        instruments.put(channel, instrument);
     }
 }

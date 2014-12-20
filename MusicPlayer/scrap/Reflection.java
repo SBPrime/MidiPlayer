@@ -45,10 +45,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.primesoft.musicplayer.MusicPlayerMain;
-import org.primesoft.musicplayer.notePlayer.PackageNotePlayer;
 
 /**
  * Reflection GET and SET operations.
