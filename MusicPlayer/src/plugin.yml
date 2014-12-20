@@ -10,9 +10,12 @@ commands:
     description: 'Reload the config'
     usage: /<command>
     permission: music.player.admin.reload
+  playmidi:
+    description: 'Play midi file'
+    usage: /<command>
   test:
     description: ''
-    usage: /<command>    
+    usage: /<command>  
 permissions:
   musicplayer.*:
     description: Grants access to all MusicPlayer permissions

@@ -55,7 +55,6 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-import org.bukkit.Sound;
 import org.primesoft.musicplayer.utils.InOutParam;
 
 /**
@@ -101,8 +100,7 @@ public class MidiParser {
             List<TrackEntry> notes = parseTrack(track, tempo, resolution,
                     instruments);
 
-            boolean filterResult = filterOctave(notes, octaveFilter == null ? EnumSet.of(OctaveFilter.None) : octaveFilter);
-
+            boolean filterResult = filterOctave(notes, octaveFilter == null ? EnumSet.of(OctaveFilter.None) : octaveFilter);            
             if (filterResult) {
                 result.addAll(notes);
             }

@@ -47,7 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.Instrument;
 import org.bukkit.Location;
+import org.bukkit.Note;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -57,6 +59,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.primesoft.musicplayer.commands.ReloadCommand;
+import org.primesoft.musicplayer.midiparser.InstrumentMap;
 import org.primesoft.musicplayer.midiparser.MidiParser;
 import org.primesoft.musicplayer.midiparser.NoteTrack;
 import org.primesoft.musicplayer.midiparser.OctaveFilter;
@@ -120,6 +123,8 @@ public class MusicPlayerMain extends JavaPlugin {
 
     private PluginCommand m_commandTest;
 
+    private PluginCommand m_commandPlay;
+
     private BukkitScheduler m_scheduler;
 
     /**
@@ -127,7 +132,7 @@ public class MusicPlayerMain extends JavaPlugin {
      */
     private String m_version;
 
-    private final HashMap<String, List<TrackEntry>> m_playerTracks = new HashMap<String, List<TrackEntry>>();
+    private final HashMap<String, TrackEntry[]> m_playerTracks = new HashMap<String, TrackEntry[]>();
 
     public String getVersion() {
         return m_version;
@@ -143,6 +148,7 @@ public class MusicPlayerMain extends JavaPlugin {
         m_version = desc.getVersion();
 
         ReloadCommand commandHandler = new ReloadCommand(this);
+        m_commandPlay = getCommand("playmidi");
         m_commandTest = getCommand("test");
         m_commandReload = getCommand("mpreload");
         m_commandReload.setExecutor(commandHandler);
@@ -162,8 +168,11 @@ public class MusicPlayerMain extends JavaPlugin {
         Player player = sender instanceof Player ? (Player) sender : null;
 
         if (player != null) {
-            if (command.equals(m_commandTest)) {
+            if (command.equals(m_commandPlay)) {
                 doMusicTest(player, args.length == 1 ? args[0] : null);
+                return true;
+            } else if (command.equals(m_commandTest)) {
+                doTest(player);
                 return true;
             }
         }
@@ -173,22 +182,15 @@ public class MusicPlayerMain extends JavaPlugin {
 
     private void doMusicTest(final Player player, String fileName) {
         final int TICK_LEN = 50;
-        final int TICK_MIN = 5;
+        final int TICK_MIN = 50;
 
         final Location location = player.getLocation();
-        final JavaPlugin plugin = this;
-        String name = player.getName();
+        final MusicPlayerMain plugin = this;
+        final String name = player.getName();
 
-        final List<TrackEntry> notes;
         synchronized (m_playerTracks) {
             if (m_playerTracks.containsKey(name)) {
-                notes = m_playerTracks.get(name);
-                synchronized (notes) {
-                    notes.clear();
-                }
-            } else {
-                notes = new ArrayList<TrackEntry>();
-                m_playerTracks.put(name, notes);
+                m_playerTracks.remove(name);
             }
         }
 
@@ -203,48 +205,61 @@ public class MusicPlayerMain extends JavaPlugin {
             return;
         }
 
-        synchronized (notes) {
-            for (TrackEntry te : track.getNotes()) {
-                notes.add(te);
-            }
-        }
+        final TrackEntry[] notes = track.getNotes();
+        synchronized (m_playerTracks) {
+            m_playerTracks.put(name, notes);
+        }        
+        final int cnt = notes.length;
 
         final Runnable task = new Runnable() {
+            private int m_pos = 0;
+            private HashMap<String, TrackEntry[]> m_tracks = plugin.m_playerTracks;
+
             @Override
             public void run() {
-                TrackEntry current;
-                TrackEntry next;
-
-                synchronized (notes) {
-                    if (notes.isEmpty()) {
-                        next = null;
-                    } else {
-                        next = notes.get(0);
-                        notes.remove(0);
+                synchronized(m_tracks) {
+                    if (!m_tracks.containsKey(name) || m_tracks.get(name) != notes) {
+                        return;
                     }
                 }
+                
+                TrackEntry current;
+                TrackEntry next = notes[m_pos];
+                
                 long delay;
 
                 do {
                     current = next;
-                    if (notes.isEmpty()) {
-                        next = null;
-                    } else {
-                        next = notes.get(0);
-                        notes.remove(0);
-                    }
+                    m_pos++;
+                    next = m_pos < cnt ? notes[m_pos] : null;
 
-                    if (current != null) {
-                        current.play(player, location);
-                    }
+                    current.play(player, location);
                     delay = next != null ? next.getMilis() : Integer.MAX_VALUE;
-                    //System.out.println(m_pos +" " + delay);
                 } while (delay < TICK_MIN);
 
                 if (next != null) {
-                    long waitTicks = (long) Math.round((double) delay / TICK_LEN);
-                    //System.out.println("Wait " + delay + " " + waitTicks);
+                    long waitTicks = (long) Math.round((double) delay / TICK_LEN) - 1;
                     m_scheduler.runTaskLater(plugin, this, waitTicks);
+                }
+            }
+        };
+
+        m_scheduler.runTaskLater(this, task, 1);
+    }
+
+    private void doTest(final Player player) {
+        //player.playNote(player.getLocation(), Instrument.PIANO, Note.natural(1, Note.Tone.G));
+
+        final JavaPlugin plugin = this;
+        final Runnable task = new Runnable() {
+            int lp = 0;
+
+            @Override
+            public void run() {
+                new TrackEntry(0, InstrumentMap.getDefault(), lp / 12, lp % 12, 1.0f).play(player, player.getLocation());
+                lp++;
+                if (lp < 24) {
+                    m_scheduler.runTaskLater(plugin, this, 6);
                 }
             }
         };

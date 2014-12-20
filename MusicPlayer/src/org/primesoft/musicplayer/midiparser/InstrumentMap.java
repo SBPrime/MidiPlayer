@@ -71,8 +71,7 @@ public class InstrumentMap {
             if (s_instruments.containsKey(program)) {
                 instrument = s_instruments.get(program);
             }
-
-            System.out.println("!! " + program + " " + (instrument != null ? instrument.getPatch() : "null"));
+            
             return instrument;
         }
     }
