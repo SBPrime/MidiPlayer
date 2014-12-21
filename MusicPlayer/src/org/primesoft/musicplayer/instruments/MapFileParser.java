@@ -38,7 +38,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.midiparser;
+package org.primesoft.musicplayer.instruments;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,39 +49,27 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.primesoft.musicplayer.MusicPlayerMain;
-import org.yaml.snakeyaml.reader.StreamReader;
+import org.primesoft.musicplayer.utils.InOutParam;
+import org.primesoft.musicplayer.utils.Utils;
 
 /**
  *
- * @author prime
+ * @author SBPrime
  */
-public class InstrumentMap {
+public class MapFileParser {
 
-    private static final HashMap<Integer, Instrument> s_instruments = new HashMap<Integer, Instrument>();
+    /**
+     * Comment start
+     */
+    private final static String COMMENT = "#";
 
-    private static Instrument s_defaultInstrument = new Instrument(-1, "note.harp", 1.0f);
-
-    private static final Object s_mutex = new Object();
-
-    public static Instrument getInstrument(int program) {
-        synchronized (s_mutex) {
-            Instrument instrument = null;
-            if (s_instruments.containsKey(program)) {
-                instrument = s_instruments.get(program);
-            }
-            
-            return instrument;
-        }
-    }
-
-    public static Instrument getDefault() {
-        synchronized (s_mutex) {
-            return s_defaultInstrument;
-        }
-    }
-
+    /**
+     * Load the map file from file
+     *
+     * @param mapFile
+     * @return
+     */
     public static boolean loadMap(File mapFile) {
         BufferedReader file = null;
 
@@ -102,12 +90,17 @@ public class InstrumentMap {
         }
     }
 
+    /**
+     * Load instrument mapping from resource
+     *
+     * @return
+     */
     public static boolean loadDefaultMap() {
         BufferedReader file = null;
 
         try {
-            InputStream is = InstrumentMap.class.getResourceAsStream("/default.map");
-            
+            InputStream is = MapFileParser.class.getResourceAsStream("/default.map");
+
             file = new BufferedReader(new InputStreamReader(is));
             return loadMap(file);
         } catch (IOException ex) {
@@ -124,79 +117,91 @@ public class InstrumentMap {
         }
     }
 
+    /**
+     * Load and parse the map file
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
     private static boolean loadMap(BufferedReader file) throws IOException {
-        Instrument d = null;
-        HashMap<Integer, Instrument> instruments = new HashMap<Integer, Instrument>();
+        HashMap<OctaveDefinition, InstrumentEntry> d = new HashMap<OctaveDefinition, InstrumentEntry>();
+        HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments
+                = new HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>>();
 
         String line;
         while ((line = file.readLine()) != null) {
             String cLine = line.trim().replace("\t", " ");
-            if (cLine.startsWith("#")) {
+            if (cLine.startsWith(COMMENT)) {
                 //Whole line of comments
                 continue;
             }
 
-            String[] parts = cLine.split(" ");
-            List<String> tmp = new ArrayList<String>();
-            for (String p : parts) {
-                if (!p.isEmpty()) {
-                    tmp.add(p);
-                }
-            }
-            parts = tmp.toArray(new String[0]);
-            
+            String[] parts = split(cLine);
+
             boolean hasError = false;
             boolean isDefault = false;
-            int id = -1;
-            int volume = -1;
+            InOutParam<Integer> id = InOutParam.Out();
+            InOutParam<Integer> volume = InOutParam.Out();
             String patch = "";
+            OctaveDefinition[] octaves = null;
 
-            if (parts.length >= 3) {
+            if (parts.length >= 4) {
                 String sId = parts[0].trim();
                 patch = parts[1].trim();
                 String sVolume = parts[2].trim();
 
-                try {
-                    id = Integer.parseInt(sId);
-                } catch (NumberFormatException ex) {
+                if (!Utils.TryParseInteger(sId, id)) {
                     isDefault = sId.equalsIgnoreCase("D");
                     hasError |= !isDefault;
                 }
 
                 if (sVolume.endsWith("%")) {
-                    try {
-                        volume = Integer.parseInt(sVolume.substring(0, sVolume.length() - 1));
-                    } catch (NumberFormatException ex) {
+                    if (!Utils.TryParseInteger(sVolume.substring(0, sVolume.length() - 1), volume)) {
                         hasError = true;
                     }
                 } else {
                     hasError = true;
                 }
 
-                hasError |= patch.isEmpty() | volume < 0;
-
+                octaves = parseOctaves(parts);
+                hasError |= patch.isEmpty() | !volume.isSet() | octaves == null;
             } else {
                 hasError = true;
             }
 
             if (hasError) {
                 MusicPlayerMain.log("Invalid instrument mapping line: " + line);
-            } else if (isDefault && d != null) {
+            } else if (isDefault && Utils.containsAny(d.keySet(), octaves)) {
                 MusicPlayerMain.log("Duplicate default instrument entry: " + line);
-            } else if (!isDefault && instruments.containsKey(id)) {
+            } else if (!isDefault && instruments.containsKey(id)
+                    && Utils.containsAny(instruments.get(id).keySet(), octaves)) {
                 MusicPlayerMain.log("Duplicate instrument entry: " + line);
 
             } else {
-                Instrument i = new Instrument(id, patch, volume / 100.0f);
+                InstrumentEntry i = new InstrumentEntry(id.isSet() ? id.getValue() : -1,
+                        patch, volume.getValue() / 100.0f);
+
+                HashMap<OctaveDefinition, InstrumentEntry> hash;
                 if (isDefault) {
-                    d = i;
+                    hash = d;
                 } else {
-                    instruments.put(id, i);
+                    int iid = id.getValue();
+                    if (instruments.containsKey(iid)) {
+                        hash = instruments.get(iid);
+                    } else {
+                        hash = new HashMap<OctaveDefinition, InstrumentEntry>();
+                        instruments.put(iid, hash);
+                    }
+                }
+
+                for (OctaveDefinition octave : octaves) {
+                    hash.put(octave, i);
                 }
             }
         }
 
-        if (d == null) {
+        if (d.isEmpty()) {
             MusicPlayerMain.log("No default instrument.");
             return false;
         }
@@ -205,14 +210,68 @@ public class InstrumentMap {
             MusicPlayerMain.log("No instruments defined.");
             return false;
         }
-        synchronized (s_mutex) {
-            s_instruments.clear();
-            for (Map.Entry<Integer, Instrument> entrySet : instruments.entrySet()) {
-                s_instruments.put(entrySet.getKey(), entrySet.getValue());
-            }
-            s_defaultInstrument = d;
-        }
+
+        InstrumentMap.set(instruments, d);
 
         return true;
+    }
+
+    /**
+     * Split line and ignore comments
+     *
+     * @param line
+     * @return
+     */
+    private static String[] split(String line) {
+        if (line == null) {
+            return new String[0];
+        }
+
+        List<String> parts = new ArrayList<String>();
+        for (String s : line.split(" ")) {
+            s = s.trim();
+            if (!s.isEmpty()) {
+                if (s.startsWith(COMMENT)) {
+                    break;
+                }
+
+                parts.add(s);
+            }
+        }
+
+        return parts.toArray(new String[0]);
+    }
+
+    /**
+     * Parse the octaves entries
+     *
+     * @param parts
+     * @return
+     */
+    private static OctaveDefinition[] parseOctaves(String[] parts) {
+        List<OctaveDefinition> result = new ArrayList<OctaveDefinition>();
+        for (int i = 3; i < parts.length; i++) {
+            String s = parts[i];
+
+            InOutParam<Integer> from = InOutParam.Out();
+            if (Utils.TryParseInteger(s, from)) {
+                result.add(new OctaveDefinition(from.getValue(), from.getValue()));
+            } else {
+                String[] elements = s.split("-");
+                if (elements == null || elements.length != 2) {
+                    return null;
+                }
+
+                InOutParam<Integer> to = InOutParam.Out();
+                if (!Utils.TryParseInteger(elements[0], from)
+                        || !Utils.TryParseInteger(elements[1], to)) {
+                    return null;
+                }
+
+                result.add(new OctaveDefinition(from.getValue(), to.getValue()));
+            }
+        }
+
+        return result.toArray(new OctaveDefinition[0]);
     }
 }

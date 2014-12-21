@@ -40,6 +40,8 @@
  */
 package org.primesoft.musicplayer.midiparser;
 
+import org.primesoft.musicplayer.instruments.Instrument;
+import org.primesoft.musicplayer.instruments.InstrumentMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,9 +69,9 @@ public class MidiParser {
     private final static int MAX_OCTAVE = 1;
     private final static int CNT_OCTAVE = MAX_OCTAVE - MIN_OCTAVE;
 
-    public static NoteTrack loadFile(File midiFile, EnumSet<OctaveFilter> octaveFilter) {
+    public static NoteTrack loadFile(File midiFile) {
         try {
-            return parseFile(midiFile, octaveFilter);
+            return parseFile(midiFile);
         } catch (InvalidMidiDataException ex) {
             return new NoteTrack("Invalid or corrupted MIDI file");
         } catch (IOException ex) {
@@ -77,7 +79,7 @@ public class MidiParser {
         }
     }
 
-    private static NoteTrack parseFile(File midiFile, EnumSet<OctaveFilter> octaveFilter) throws IOException, InvalidMidiDataException {
+    private static NoteTrack parseFile(File midiFile) throws IOException, InvalidMidiDataException {
         if (midiFile == null || !midiFile.canRead()) {
             return new NoteTrack("Unable to read the MIDI file");
         }
@@ -97,13 +99,8 @@ public class MidiParser {
 
         HashMap<Integer, Instrument> instruments = new HashMap<Integer, Instrument>();
         for (Track track : sequence.getTracks()) {
-            List<TrackEntry> notes = parseTrack(track, tempo, resolution,
-                    instruments);
-
-            boolean filterResult = filterOctave(notes, octaveFilter == null ? EnumSet.of(OctaveFilter.None) : octaveFilter);            
-            if (filterResult) {
-                result.addAll(notes);
-            }
+            result.addAll(parseTrack(track, tempo, resolution,
+                    instruments));
         }
 
         Collections.sort(result);
@@ -112,16 +109,16 @@ public class MidiParser {
         return new NoteTrack(result.toArray(new TrackEntry[0]));
     }
 
-    private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo, 
+    private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo,
             int resolution, HashMap<Integer, Instrument> instruments) {
         double lTempo = tempo.getValue();
-        
+
         List<TrackEntry> result = new ArrayList<TrackEntry>();
 
         for (int idx = 0; idx < track.size(); idx++) {
             MidiEvent event = track.get(idx);
             MidiMessage message = event.getMessage();
-            
+
             long tick = event.getTick();
             long milis;
 
@@ -175,63 +172,6 @@ public class MidiParser {
         return result;
     }
 
-    private static boolean filterOctave(List<TrackEntry> notes, EnumSet<OctaveFilter> enumSet) {
-        if (notes == null || notes.isEmpty()) {
-            return false;
-        }
-        int min = 0, max = 0;
-
-        boolean moveToMin = enumSet.contains(OctaveFilter.MoveToMin);
-        boolean normalize = enumSet.contains(OctaveFilter.Normalize);
-        boolean modulo = enumSet.contains(OctaveFilter.Modulo);
-        boolean cut = enumSet.contains(OctaveFilter.Cut);
-
-        if (moveToMin || normalize) {
-            max = Integer.MIN_VALUE;
-            min = Integer.MAX_VALUE;
-
-            for (TrackEntry entry : notes) {
-                int octave = entry.getOctave();
-                if (octave < min) {
-                    min = octave;
-                }
-                if (octave > max) {
-                    max = octave;
-                }
-            }
-        }
-        int l = max - min;
-
-        for (TrackEntry entry : notes.toArray(new TrackEntry[0])) {
-            int octave = entry.getOctave();
-            if (normalize) {
-                octave = CNT_OCTAVE * (octave - min) / l + MIN_OCTAVE;
-            } else if (moveToMin) {
-                octave = octave - min + MIN_OCTAVE;
-            }
-
-            if (modulo) {
-                octave %= (CNT_OCTAVE + 1);
-            }
-
-            boolean lower = octave < MIN_OCTAVE;
-            boolean higher = octave > MAX_OCTAVE;
-
-            if (cut && (lower || higher)) {
-                notes.remove(entry);
-                System.out.println("Note cut");
-            } else if (lower || higher) {
-                notes.clear();
-                System.out.println("Track octave out of band");
-                return false;
-            } else {
-                entry.setOctave(octave);
-            }
-        }
-
-        return true;
-    }
-
     private static void convertToDelta(List<TrackEntry> notes) {
         if (notes == null || notes.isEmpty()) {
             return;
@@ -249,11 +189,11 @@ public class MidiParser {
         if (instruments == null) {
             return null;
         }
-        
+
         if (instruments.containsKey(channel)) {
             return instruments.get(channel);
         }
-        
+
         return InstrumentMap.getDefault();
     }
 
@@ -261,11 +201,11 @@ public class MidiParser {
         if (instruments == null) {
             return;
         }
-        
+
         if (instruments.containsKey(channel)) {
             instruments.remove(channel);
         }
-        
+
         instruments.put(channel, instrument);
     }
 }

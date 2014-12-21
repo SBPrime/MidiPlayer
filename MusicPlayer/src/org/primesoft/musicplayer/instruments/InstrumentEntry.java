@@ -38,17 +38,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-package org.primesoft.musicplayer.midiparser;
+package org.primesoft.musicplayer.instruments;
 
 /**
  *
  * @author SBPrime
  */
-public enum OctaveFilter {
-    None,
-    Normalize,
-    MoveToMin,
-    Modulo,
-    Cut
+public class InstrumentEntry {
+    
+    /**
+     * Instrument path
+     */
+    private final String m_patch;
+
+    /**
+     * MIDI program id
+     */
+    private final int m_program;
+
+    /**
+     * The volume scale
+     */
+    private final float m_volumeScale;
+
+
+    /**
+     * Sound patch
+     * @return 
+     */
+    public String getPatch() {
+        return m_patch;
+    }
+    
+    /**
+     * MIDI program id
+     * @return 
+     */
+    public int getProgramId() {
+        return m_program;
+    }
+    
+    /**
+     * Get the volume scale
+     * @return 
+     */
+    public float getVolumeScale() {
+        return m_volumeScale;
+    }
+        
+    public InstrumentEntry(int program, String patch, float volumeScale) {
+        m_program = program;
+        m_patch = patch;
+        m_volumeScale = volumeScale;
+    }
 }

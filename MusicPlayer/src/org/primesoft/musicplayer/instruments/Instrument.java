@@ -38,56 +38,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.midiparser;
+package org.primesoft.musicplayer.instruments;
+
+import java.util.HashMap;
+import org.primesoft.musicplayer.utils.InOutParam;
 
 /**
  *
  * @author SBPrime
  */
 public class Instrument {
+    private final HashMap<OctaveDefinition, InstrumentEntry> m_octaveEntries;
 
-    /**
-     * Instrument path
-     */
-    private final String m_patch;
-
-    /**
-     * MIDI program id
-     */
-    private final int m_program;
-
-    /**
-     * The volume scale
-     */
-    private final float m_volumeScale;
-
-    /**
-     * Sound patch
-     * @return 
-     */
-    public String getPatch() {
-        return m_patch;
+    public Instrument(HashMap<OctaveDefinition, InstrumentEntry> octaveEntries) {
+        m_octaveEntries = octaveEntries;
     }
-    
-    /**
-     * MIDI program id
-     * @return 
-     */
-    public int getProgramId() {
-        return m_program;
-    }
-    
-    /**
-     * Get the volume scale
-     * @return 
-     */
-    public float getVolumeScale() {
-        return m_volumeScale;
-    }
-    
-    public Instrument(int program, String patch, float volumeScale) {
-        m_program = program;
-        m_patch = patch;
-        m_volumeScale = volumeScale;
+
+
+    public InstrumentEntry getEntry(int octave, InOutParam<Integer> startOctave) {
+        for (OctaveDefinition od : m_octaveEntries.keySet()) {
+            if (od.getFrom() >= octave && od.getTo() <= octave) {
+                startOctave.setValue(od.getFrom());
+                return m_octaveEntries.get(od);
+            }
+        }
+        return null;
     }
 }

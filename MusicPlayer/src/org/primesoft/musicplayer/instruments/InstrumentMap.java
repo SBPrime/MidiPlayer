@@ -38,88 +38,66 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.utils;
+package org.primesoft.musicplayer.instruments;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This is a helper class that allows you to add output (and input) parameters
- * to java functions
  *
- * @author SBPrime
+ * @author prime
  */
-public class InOutParam<T> {
+public class InstrumentMap {
 
-    /**
-     * Initialize reference parame (in and out value)
-     *
-     * @param <T>
-     * @param value
-     * @return
-     */
-    public static <T> InOutParam<T> Ref(T value) {
-        return new InOutParam<T>(value);
-    }
+    private static final HashMap<Integer, Instrument> s_instruments = new HashMap<Integer, Instrument>();
 
-    /**
-     * Initialize output param (out only)
-     *
-     * @param <T>
-     * @return
-     */
-    public static <T> InOutParam<T> Out() {
-        return new InOutParam<T>();
-    }
+    private static Instrument s_defaultInstrument;
 
-    /**
-     * Is the value set
-     */
-    private boolean m_isSet;
+    static {
+        InstrumentEntry instrument = new InstrumentEntry(-1, "note.harp", 1.0f);
+        HashMap<OctaveDefinition, InstrumentEntry> octaves = new HashMap<OctaveDefinition, InstrumentEntry>();
 
-    /**
-     * The parameter value
-     */
-    private T m_value;
-
-    /**
-     * Create new instance of ref param
-     *
-     * @param value
-     */
-    private InOutParam(T value) {
-        m_value = value;
-        m_isSet = true;
-    }
-
-    /**
-     * Create new instance of out param
-     */
-    private InOutParam() {
-        m_isSet = false;
-    }
-
-    /**
-     * Get the parameter value
-     *
-     * @return
-     */
-    public T getValue() {
-        if (m_isSet) {
-            return m_value;
+        for (int i = 0; i < 11; i += 2) {
+            octaves.put(new OctaveDefinition(i, i + 1), instrument);
         }
 
-        throw new IllegalStateException("Output parameter not set");
+        s_defaultInstrument = new Instrument(octaves);
     }
 
-    public void setValue(T value) {
-        m_isSet = true;
-        m_value = value;
+    private static final Object s_mutex = new Object();
+
+    public static Instrument getInstrument(int program) {
+        synchronized (s_mutex) {
+            Instrument instrument = null;
+            if (s_instruments.containsKey(program)) {
+                instrument = s_instruments.get(program);
+            }
+
+            return instrument;
+        }
+    }
+
+    public static Instrument getDefault() {
+        synchronized (s_mutex) {
+            return s_defaultInstrument;
+        }
     }
 
     /**
-     * Is the value set
+     * Set the instrument map
      *
-     * @return
+     * @param instruments
+     * @param d
      */
-    public boolean isSet() {
-        return m_isSet;
+    public static void set(HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments,
+            HashMap<OctaveDefinition, InstrumentEntry> d) {
+        synchronized (s_mutex) {
+            s_instruments.clear();
+            for (Map.Entry<Integer, HashMap<OctaveDefinition, InstrumentEntry>> entrySet : instruments.entrySet()) {
+                s_instruments.put(entrySet.getKey(), new Instrument(entrySet.getValue()));
+            }
+
+            s_defaultInstrument = new Instrument(d);
+        }
     }
 }

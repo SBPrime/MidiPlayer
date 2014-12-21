@@ -41,15 +41,11 @@
 package org.primesoft.musicplayer;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.Instrument;
 import org.bukkit.Location;
-import org.bukkit.Note;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -59,10 +55,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.primesoft.musicplayer.commands.ReloadCommand;
-import org.primesoft.musicplayer.midiparser.InstrumentMap;
+import org.primesoft.musicplayer.instruments.InstrumentMap;
 import org.primesoft.musicplayer.midiparser.MidiParser;
 import org.primesoft.musicplayer.midiparser.NoteTrack;
-import org.primesoft.musicplayer.midiparser.OctaveFilter;
 import org.primesoft.musicplayer.midiparser.TrackEntry;
 
 /**
@@ -197,9 +192,7 @@ public class MusicPlayerMain extends JavaPlugin {
         if (fileName == null) {
             return;
         }
-        NoteTrack track = MidiParser.loadFile(
-                new File(getDataFolder(), fileName),
-                EnumSet.of(OctaveFilter.MoveToMin, OctaveFilter.Modulo));
+        NoteTrack track = MidiParser.loadFile(new File(getDataFolder(), fileName));
         if (track == null || track.isError()) {
             say(player, "Error loading midi track: " + track.getMessage());
             return;

@@ -48,7 +48,8 @@ import org.primesoft.musicplayer.ConfigProvider;
 import org.primesoft.musicplayer.MusicPlayerMain;
 import static org.primesoft.musicplayer.MusicPlayerMain.log;
 import org.primesoft.musicplayer.VersionChecker;
-import org.primesoft.musicplayer.midiparser.InstrumentMap;
+import org.primesoft.musicplayer.instruments.InstrumentMap;
+import org.primesoft.musicplayer.instruments.MapFileParser;
 
 /**
  *
@@ -99,11 +100,11 @@ public class ReloadCommand extends BaseCommand {
         String mapFileName = ConfigProvider.getInstrumentMapFile();
         File mapFile = new File(ConfigProvider.getPluginFolder(), mapFileName);
         System.out.println(mapFile);
-        if (InstrumentMap.loadMap(mapFile)) {
+        if (MapFileParser.loadMap(mapFile)) {
             MusicPlayerMain.say(player, "Instrument map loaded.");
         } else {
             MusicPlayerMain.say(player, "Error loading instrument map " + mapFileName);
-            if (!InstrumentMap.loadDefaultMap()) {
+            if (!MapFileParser.loadDefaultMap()) {
                 MusicPlayerMain.say(player, "Error loading default instrument map.");
                 return false;
             } else {

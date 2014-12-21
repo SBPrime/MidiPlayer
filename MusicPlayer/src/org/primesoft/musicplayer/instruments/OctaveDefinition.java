@@ -38,88 +38,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.utils;
+package org.primesoft.musicplayer.instruments;
 
 /**
- * This is a helper class that allows you to add output (and input) parameters
- * to java functions
  *
  * @author SBPrime
  */
-public class InOutParam<T> {
+public class OctaveDefinition {
 
-    /**
-     * Initialize reference parame (in and out value)
-     *
-     * @param <T>
-     * @param value
-     * @return
-     */
-    public static <T> InOutParam<T> Ref(T value) {
-        return new InOutParam<T>(value);
+    private final int m_from;
+    private final int m_to;
+
+    public int getFrom() {
+        return m_from;
     }
 
-    /**
-     * Initialize output param (out only)
-     *
-     * @param <T>
-     * @return
-     */
-    public static <T> InOutParam<T> Out() {
-        return new InOutParam<T>();
+    public int getTo() {
+        return m_to;
     }
 
-    /**
-     * Is the value set
-     */
-    private boolean m_isSet;
-
-    /**
-     * The parameter value
-     */
-    private T m_value;
-
-    /**
-     * Create new instance of ref param
-     *
-     * @param value
-     */
-    private InOutParam(T value) {
-        m_value = value;
-        m_isSet = true;
+    public OctaveDefinition(int from, int to) {
+        m_from = from;
+        m_to = to;
     }
 
-    /**
-     * Create new instance of out param
-     */
-    private InOutParam() {
-        m_isSet = false;
+    @Override
+    public int hashCode() {
+        return m_to ^ m_from;
     }
 
-    /**
-     * Get the parameter value
-     *
-     * @return
-     */
-    public T getValue() {
-        if (m_isSet) {
-            return m_value;
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof OctaveDefinition)) {
+            return false;
         }
 
-        throw new IllegalStateException("Output parameter not set");
-    }
-
-    public void setValue(T value) {
-        m_isSet = true;
-        m_value = value;
-    }
-
-    /**
-     * Is the value set
-     *
-     * @return
-     */
-    public boolean isSet() {
-        return m_isSet;
+        OctaveDefinition othre = (OctaveDefinition) obj;
+        return othre.m_from == m_from && othre.m_to == m_to;
     }
 }

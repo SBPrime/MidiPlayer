@@ -40,8 +40,11 @@
  */
 package org.primesoft.musicplayer.midiparser;
 
+import org.primesoft.musicplayer.instruments.Instrument;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.primesoft.musicplayer.instruments.InstrumentEntry;
+import org.primesoft.musicplayer.utils.InOutParam;
 
 /**
  *
@@ -51,10 +54,8 @@ public class TrackEntry implements Comparable<TrackEntry> {
 
     private long m_milis;
     private final String m_instrumentPatch;
-    private int m_octave;
-    private final int m_note;
     private final float m_volume;
-    private float m_frq;
+    private final float m_frq;
 
     public long getMilis() {
         return m_milis;
@@ -64,34 +65,31 @@ public class TrackEntry implements Comparable<TrackEntry> {
         m_milis = milis;
     }
 
-    public int getOctave() {
-        return m_octave;
-    }
-
-    public void setOctave(int octave) {
-        m_octave = octave;
-
-        updateFrq();
-    }
-
     public TrackEntry(long milis, Instrument instrument, int octave, int note, float volume) {
         float scale;
 
-        if (instrument != null) {
-            scale = Math.max(0, instrument.getVolumeScale());
-            m_instrumentPatch = instrument.getPatch();
+        InstrumentEntry iEntry;
+        if (instrument == null) {
+            iEntry = null;
+        } else {
+            InOutParam<Integer> startOctave = InOutParam.Out();
+            iEntry = instrument.getEntry(octave, startOctave);
+
+            octave -= startOctave.getValue();
+        }
+
+        if (iEntry != null) {
+            scale = Math.max(0, iEntry.getVolumeScale());
+            m_instrumentPatch = iEntry.getPatch();
         } else {
             scale = 0.0f;
             m_instrumentPatch = null;
         }
 
         m_milis = milis;
-        m_octave = octave;
+
+        m_frq = (float) Math.pow(2, (note + 12 * (octave % 2) - 12.0) / 12.0);
         m_volume = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
-
-        m_note = note % 12;
-
-        updateFrq();
     }
 
     @Override
@@ -111,10 +109,6 @@ public class TrackEntry implements Comparable<TrackEntry> {
         }
 
         return 1;
-    }
-
-    private void updateFrq() {
-        m_frq = (float) Math.pow(2, (m_note + 12 * m_octave - 12.0) / 12.0);
     }
 
     public void play(Player player, Location location) {
