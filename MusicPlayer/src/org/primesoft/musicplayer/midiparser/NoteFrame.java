@@ -40,33 +40,53 @@
  */
 package org.primesoft.musicplayer.midiparser;
 
+import java.util.List;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
 /**
  *
  * @author SBPrime
  */
-public class NoteTrack {
-    private final String m_message;
-    private final NoteFrame[] m_notes;
+public class NoteFrame {
 
-    public String getMessage() {
-        return m_message;
+    /**
+     * The frame wait in milliseconds
+     */
+    private final long m_wait;
+
+    public long getWait() {
+        return m_wait;
     }
 
-    public NoteFrame[] getNotes() {
-        return m_notes;
+    /**
+     * The notes
+     */
+    private final NoteEntry[] m_notes;
+
+    public NoteFrame(long delta, List<TrackEntry> notes) {
+        m_wait = delta;
+
+        final int cnt = notes.size();
+        m_notes = new NoteEntry[cnt];
+
+        int i = 0;
+        for (TrackEntry entry : notes) {
+            m_notes[i] = entry.getNote();
+            i++;
+        }
     }
 
-    public boolean isError() {
-        return m_notes == null;
-    }
+    public void play(Player player, Location location) {
+        if (player == null || !player.isOnline()) {
+            return;
+        }
 
-    public NoteTrack(String message) {
-        m_message = message;
-        m_notes = null;
-    }
-    
-    public NoteTrack(NoteFrame[] notes) {
-        m_message = "";
-        m_notes = notes;
+        if (location == null) {
+            location = player.getLocation();
+        }
+        for (NoteEntry note : m_notes) {            
+            note.play(player, location);
+        }
     }
 }

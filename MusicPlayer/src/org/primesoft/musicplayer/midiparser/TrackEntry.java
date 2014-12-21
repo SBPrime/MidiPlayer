@@ -50,19 +50,26 @@ import org.primesoft.musicplayer.utils.InOutParam;
  *
  * @author SBPrime
  */
-public class TrackEntry implements Comparable<TrackEntry> {
+public class TrackEntry {
 
-    private long m_milis;
-    private final String m_instrumentPatch;
-    private final float m_volume;
-    private final float m_frq;
+    private long m_milis;    
+    
+    private NoteEntry m_note;
 
+    public NoteEntry getNote() {
+        return m_note;
+    }
+    
     public long getMilis() {
         return m_milis;
     }
 
     public void setMilis(long milis) {
         m_milis = milis;
+    }
+    
+    public NoteEntry getEntry() {
+        return m_note;
     }
 
     public TrackEntry(long milis, Instrument instrument, int octave, int note, float volume) {
@@ -74,57 +81,26 @@ public class TrackEntry implements Comparable<TrackEntry> {
         } else {
             InOutParam<Integer> startOctave = InOutParam.Out();
             iEntry = instrument.getEntry(octave, startOctave);
-
-            octave -= startOctave.getValue();
+            if (iEntry != null && startOctave.isSet()) {
+                octave -= startOctave.getValue();
+            }
         }
 
+        final String instrumentPatch;
+        
         if (iEntry != null) {
             scale = Math.max(0, iEntry.getVolumeScale());
-            m_instrumentPatch = iEntry.getPatch();
+            instrumentPatch = iEntry.getPatch();
         } else {
             scale = 0.0f;
-            m_instrumentPatch = null;
+            instrumentPatch = null;
         }
-
+        
         m_milis = milis;
 
-        m_frq = (float) Math.pow(2, (note + 12 * (octave % 2) - 12.0) / 12.0);
-        m_volume = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
-    }
-
-    @Override
-    public int compareTo(TrackEntry o) {
-        if (o == null) {
-            return 1;
-        }
-
-        long diff = m_milis - o.m_milis;
-
-        if (diff == 0) {
-            return 0;
-        }
-
-        if (diff < 0) {
-            return -1;
-        }
-
-        return 1;
-    }
-
-    public void play(Player player, Location location) {
-        if (m_instrumentPatch == null
-                || m_volume == 0
-                || player == null || !player.isOnline()) {
-            return;
-        }
-
-        if (location == null) {
-            location = player.getLocation();
-        }
-
-        if (m_frq < 0 || m_frq > 2) {
-            return;
-        }
-        player.playSound(location, m_instrumentPatch, m_volume, m_frq);
+        final float frq = (float) Math.pow(2, (note + 12 * (octave % 2) - 12.0) / 12.0);
+        final float vv = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
+        
+        m_note = new NoteEntry(instrumentPatch, frq, vv);
     }
 }

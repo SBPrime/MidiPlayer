@@ -38,35 +38,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.midiparser;
+package org.primesoft.musicplayer.utils;
 
 /**
  *
  * @author SBPrime
  */
-public class NoteTrack {
-    private final String m_message;
-    private final NoteFrame[] m_notes;
+public class Pair<T1, T2> {
 
-    public String getMessage() {
-        return m_message;
+    private final T1 m_x1;
+    private final T2 m_x2;
+
+    public T1 getX1() {
+        return m_x1;
     }
 
-    public NoteFrame[] getNotes() {
-        return m_notes;
-    }
-
-    public boolean isError() {
-        return m_notes == null;
-    }
-
-    public NoteTrack(String message) {
-        m_message = message;
-        m_notes = null;
+    public T2 getX2() {
+        return m_x2;
     }
     
-    public NoteTrack(NoteFrame[] notes) {
-        m_message = "";
-        m_notes = notes;
+    public Pair(T1 x1, T2 x2){
+        m_x1 = x1;
+        m_x2 = x2;
     }
 }

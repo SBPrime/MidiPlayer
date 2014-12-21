@@ -41,7 +41,6 @@
 package org.primesoft.musicplayer;
 
 import java.io.File;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +56,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.primesoft.musicplayer.commands.ReloadCommand;
 import org.primesoft.musicplayer.instruments.InstrumentMap;
 import org.primesoft.musicplayer.midiparser.MidiParser;
+import org.primesoft.musicplayer.midiparser.NoteFrame;
 import org.primesoft.musicplayer.midiparser.NoteTrack;
 import org.primesoft.musicplayer.midiparser.TrackEntry;
 
@@ -127,7 +127,7 @@ public class MusicPlayerMain extends JavaPlugin {
      */
     private String m_version;
 
-    private final HashMap<String, TrackEntry[]> m_playerTracks = new HashMap<String, TrackEntry[]>();
+    private final HashMap<String, NoteFrame[]> m_playerTracks = new HashMap<String, NoteFrame[]>();
 
     public String getVersion() {
         return m_version;
@@ -198,27 +198,27 @@ public class MusicPlayerMain extends JavaPlugin {
             return;
         }
 
-        final TrackEntry[] notes = track.getNotes();
+        final NoteFrame[] notes = track.getNotes();
         synchronized (m_playerTracks) {
             m_playerTracks.put(name, notes);
-        }        
+        }
         final int cnt = notes.length;
 
         final Runnable task = new Runnable() {
             private int m_pos = 0;
-            private HashMap<String, TrackEntry[]> m_tracks = plugin.m_playerTracks;
+            private final HashMap<String, NoteFrame[]> m_tracks = plugin.m_playerTracks;
 
             @Override
             public void run() {
-                synchronized(m_tracks) {
+                synchronized (m_tracks) {
                     if (!m_tracks.containsKey(name) || m_tracks.get(name) != notes) {
                         return;
                     }
                 }
-                
-                TrackEntry current;
-                TrackEntry next = notes[m_pos];
-                
+
+                NoteFrame current;
+                NoteFrame next = notes[m_pos];
+
                 long delay;
 
                 do {
@@ -226,8 +226,10 @@ public class MusicPlayerMain extends JavaPlugin {
                     m_pos++;
                     next = m_pos < cnt ? notes[m_pos] : null;
 
-                    current.play(player, location);
-                    delay = next != null ? next.getMilis() : Integer.MAX_VALUE;
+                    if (current != null) {
+                        current.play(player, location);
+                    }
+                    delay = next != null ? next.getWait() : Integer.MAX_VALUE;
                 } while (delay < TICK_MIN);
 
                 if (next != null) {
@@ -248,8 +250,9 @@ public class MusicPlayerMain extends JavaPlugin {
             int lp = 0;
 
             @Override
-            public void run() {
-                new TrackEntry(0, InstrumentMap.getDefault(), lp / 12, lp % 12, 1.0f).play(player, player.getLocation());
+            public void run() {                
+                new TrackEntry(0, InstrumentMap.getDefault(), lp / 12, lp % 12, 1.0f)
+                        .getNote().play(player, player.getLocation());
                 lp++;
                 if (lp < 24) {
                     m_scheduler.runTaskLater(plugin, this, 6);

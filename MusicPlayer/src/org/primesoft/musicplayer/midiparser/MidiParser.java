@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -58,6 +59,7 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 import org.primesoft.musicplayer.utils.InOutParam;
+import org.primesoft.musicplayer.utils.Pair;
 
 /**
  *
@@ -103,10 +105,9 @@ public class MidiParser {
                     instruments));
         }
 
-        Collections.sort(result);
-        convertToDelta(result);
-
-        return new NoteTrack(result.toArray(new TrackEntry[0]));
+        List<NoteFrame> frames = convertToNoteFrames(aggregate(result));
+        
+        return new NoteTrack(frames.toArray(new NoteFrame[0]));
     }
 
     private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo,
@@ -171,18 +172,21 @@ public class MidiParser {
         tempo.setValue(lTempo);
         return result;
     }
-
-    private static void convertToDelta(List<TrackEntry> notes) {
-        if (notes == null || notes.isEmpty()) {
-            return;
-        }
-
-        long last = notes.get(0).getMilis();
-        for (TrackEntry entry : notes) {
-            long milis = entry.getMilis();
-            entry.setMilis(milis - last);
+    
+    private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, List<TrackEntry>>> notes) {
+        List<NoteFrame> result = new ArrayList<NoteFrame>();
+        
+        
+        long last = notes.get(0).getX1();
+        for (Pair<Long, List<TrackEntry>> entry : notes) {
+            long milis = entry.getX1();
+            
+            result.add(new NoteFrame(milis - last,  entry.getX2()));
+            
             last = milis;
         }
+        
+        return result;
     }
 
     private static Instrument getInstrument(HashMap<Integer, Instrument> instruments, int channel) {
@@ -207,5 +211,37 @@ public class MidiParser {
         }
 
         instruments.put(channel, instrument);
+    }
+
+    /**
+     * Aggregate note entries based on time
+     * @param notes
+     * @return 
+     */
+    private static List<Pair<Long, List<TrackEntry>>> aggregate(List<TrackEntry> notes) {
+        HashMap<Long, List<TrackEntry>> tmp = new HashMap<Long, List<TrackEntry>>();
+              
+        for (TrackEntry entry : notes) {
+            final long milis = entry.getMilis();
+            
+            final List<TrackEntry> list;
+            if (tmp.containsKey(milis)) {
+                list = tmp.get(milis);
+            } else {
+                list = new ArrayList<TrackEntry>();
+                tmp.put(milis, list);
+            }
+            
+            list.add(entry);
+        }
+
+        List<Long> keys = new ArrayList<Long>(tmp.keySet());
+        Collections.sort(keys);
+        
+        List<Pair<Long, List<TrackEntry>>> result = new ArrayList<Pair<Long, List<TrackEntry>>>();
+        for (Long time : keys) {
+            result.add(new Pair<Long, List<TrackEntry>>(time, tmp.get(time)));
+        }
+        return result;
     }
 }

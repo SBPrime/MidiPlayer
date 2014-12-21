@@ -48,16 +48,18 @@ import org.primesoft.musicplayer.utils.InOutParam;
  * @author SBPrime
  */
 public class Instrument {
+
     private final HashMap<OctaveDefinition, InstrumentEntry> m_octaveEntries;
 
     public Instrument(HashMap<OctaveDefinition, InstrumentEntry> octaveEntries) {
         m_octaveEntries = octaveEntries;
     }
 
-
-    public InstrumentEntry getEntry(int octave, InOutParam<Integer> startOctave) {
+    public InstrumentEntry getEntry(int octave, InOutParam<Integer> startOctave) {        
         for (OctaveDefinition od : m_octaveEntries.keySet()) {
-            if (od.getFrom() >= octave && od.getTo() <= octave) {
+            int from = od.getFrom();
+            int to = od.getTo();
+            if (from <= octave &&  octave <= to) {                
                 startOctave.setValue(od.getFrom());
                 return m_octaveEntries.get(od);
             }
