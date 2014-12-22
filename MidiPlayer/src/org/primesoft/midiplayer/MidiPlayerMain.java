@@ -42,16 +42,14 @@ package org.primesoft.midiplayer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.Instrument;
-import org.bukkit.Note;
 import org.bukkit.Server;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.primesoft.midiplayer.commands.GlobalPlayMidiCommand;
+import org.primesoft.midiplayer.commands.PlayMidiCommand;
 import org.primesoft.midiplayer.commands.ReloadCommand;
 
 /**
@@ -105,16 +103,6 @@ public class MidiPlayerMain extends JavaPlugin {
         return s_instance;
     }
 
-    /**
-     * The plugin root command
-     */
-    private PluginCommand m_commandReload;
-
-    /**
-     * Play midi globally on the server
-     */
-    private PluginCommand m_commandPlayGlobal;
-
 
     /**
      * The plugin version
@@ -125,6 +113,12 @@ public class MidiPlayerMain extends JavaPlugin {
      * The music player
      */
     private MusicPlayer m_musicPlayer;
+   
+   
+    /**
+     * The reload command handler
+     */
+    private ReloadCommand m_reloadCommandHandler;
     
     
     /**
@@ -149,9 +143,9 @@ public class MidiPlayerMain extends JavaPlugin {
         m_version = desc.getVersion();
         m_musicPlayer = new MusicPlayer(this, server.getScheduler());
 
-        ReloadCommand reloadHandler = InitializeCommands();
-
-        if (!reloadHandler.ReloadConfig(null)) {
+        InitializeCommands();
+                
+        if (!m_reloadCommandHandler.ReloadConfig(null)) {
             log("Error loading config");
             return;
         }
@@ -159,20 +153,31 @@ public class MidiPlayerMain extends JavaPlugin {
         super.onEnable();
     }
 
-    private ReloadCommand InitializeCommands() {
-        ReloadCommand reloadHandler = new ReloadCommand(this);
-        GlobalPlayMidiCommand playHandler = new GlobalPlayMidiCommand(this, m_musicPlayer);
+    
+    /**
+     * Initialize the commands
+     * @return 
+     */
+    private void InitializeCommands() {
+        m_reloadCommandHandler = new ReloadCommand(this);
+        GlobalPlayMidiCommand playGlobalCommandHandler = new GlobalPlayMidiCommand(this, m_musicPlayer);
+        PlayMidiCommand playCommandHandler = new PlayMidiCommand(this, m_musicPlayer);
         
-        m_commandPlayGlobal = getCommand("playglobalmidi");
-        m_commandPlayGlobal.setExecutor(playHandler);
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents( playCommandHandler, this);
+
+        PluginCommand commandPlayGlobal = getCommand("playglobalmidi");
+        commandPlayGlobal.setExecutor(playGlobalCommandHandler);                
         
-        m_commandReload = getCommand("mpreload");
-        m_commandReload.setExecutor(reloadHandler);
-        return reloadHandler;
+        PluginCommand commandReload = getCommand("mpreload");
+        commandReload.setExecutor(m_reloadCommandHandler);
+        
+        PluginCommand commandPlay = getCommand("playmidi");
+        commandPlay.setExecutor( playCommandHandler);
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable() {        
         m_musicPlayer.stop();
         super.onDisable();
     }
