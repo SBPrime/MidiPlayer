@@ -1,0 +1,41 @@
+name: MidiPlayer
+main: org.primesoft.musicplayer.MidiPlayerMain
+version: 0.0.1
+website: 
+dev-url: 
+description: 
+authors: [SBPrime]
+commands:
+  mpreload:
+    description: 'Reload the config'
+    usage: /<command>
+    permission: midiplayer.admin.reload
+  playmidi:
+    description: 'Play midi file for calling player'
+    usage: /<command>
+    permission: midiplayer.play
+    alias: play
+  playglobalmidi:
+    description: 'Play midi file for all players on the server'
+    usage: /<command>
+    permission: midiplayer.playglobal
+    alias: gplay
+permissions:
+  musicplayer.*:
+    description: Grants access to all MidiPlayer permissions
+    default: op
+    children:      
+      midiplayer.admin.*: true
+      midiplayer.playglobal: true
+      midiplayer.play: true
+  midiplayer.playglobal:
+    description: Grants access to play global midi command
+    default: op
+  midiplayer.admin.*:
+    description: Grants access to all MidiPlayer admin permissions
+    default: op
+    children:      
+      musicplayer.admin.reload: true
+  midiplayer.admin.reload:
+    description: Allows you to reload MidiPlayer config
+    default: op

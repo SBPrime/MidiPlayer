@@ -1,0 +1,130 @@
+#ProgramID | Sound patch | Base volume | Octaves
+D	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Default mapping
+0	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Acoustic Grand Piano
+1	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Bright Acoustic Piano
+2	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Electric Grand Piano
+3	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Honky-tonk Piano
+4	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Electric Piano 1
+5	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Electric Piano 2
+6	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Harpsichord
+7	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Clavi
+8	mob.blaze.hit			 10%	0-1	2-3	4-5	6-7	8-9	10	#Celesta
+9	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Glockenspiel
+10	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Music Box
+11	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Vibraphone
+12	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Marimba
+13	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Xylophone
+14	random.anvil_land 		 10%	0-1	2-3	4-5	6-7	8-9	10	#Tubular Bells
+15	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Dulcimer
+16	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Drawbar Organ
+17	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Percussive Organ
+18	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Rock Organ
+19	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Church Organ
+20	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Reed Organ
+21	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Accordion
+22	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Harmonica
+23	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Tango Accordion
+24	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Acoustic Guitar (nylon)
+25	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Acoustic Guitar (steel)
+26	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Electric Guitar (jazz)
+27	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Electric Guitar (clean)
+28	note.snare			100%	0-1	2-3	4-5	6-7	8-9	10	#Electric Guitar (muted)
+29	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Overdriven Guitar
+30	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Distortion Guitar
+31	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Guitar harmonics
+32	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Acoustic Bass
+33	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Electric Bass (finger)
+34	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Electric Bass (pick)
+35	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Fretless Bass
+36	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Slap Bass 1
+37	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Slap Bass 2
+38	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Synth Bass 1
+39	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Synth Bass 2
+40	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Violin
+41	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Viola
+42	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Cello
+43	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Contrabass
+44	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Tremolo Strings
+45	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Pizzicato Strings
+46	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Orchestral Harp
+47	liquid.lavapop			 50%	0-1	2-3	4-5	6-7	8-9	10	#Timpani
+48	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#String Ensemble 1
+49	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#String Ensemble 2
+50	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#SynthStrings 1
+51	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#SynthStrings 2
+52	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Choir Aahs
+53	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Voice Oohs
+54	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Synth Voice
+55	random.bowhit			 50%	0-1	2-3	4-5	6-7	8-9	10	#Orchestra Hit
+56	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Trumpet
+57	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Trombone
+58	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Tuba
+59	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Muted Trumpet
+60	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#French Horn
+61	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Brass Section
+62	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#SynthBrass 1
+63	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#SynthBrass 2
+64	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Soprano Sax
+65	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Alto Sax
+66	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Tenor Sax
+67	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Baritone Sax
+68	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Oboe
+69	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#English Horn
+70	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Bassoon
+71	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Clarinet
+72	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Piccolo
+73	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Flute
+74	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Recorder
+75	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Pan Flute
+76	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Blown Bottle
+77	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Shakuhachi
+78	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Whistle
+79	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Ocarina
+80	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Lead 1 (square)
+81	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Lead 2 (sawtooth)
+82	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#Lead 3 (calliope)
+83	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Lead 4 (chiff)
+84	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Lead 5 (charang)
+85	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Lead 6 (voice)
+86	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Lead 7 (fifths)
+87	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Lead 8 (bass + lead)
+88	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Pad 1 (new age)
+89	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Pad 2 (warm)
+90	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Pad 3 (polysynth)
+91	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Pad 4 (choir)
+92	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Pad 5 (bowed)
+93	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Pad 6 (metallic)
+94	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Pad 7 (halo)
+95	mob.horse.donkey.death		  5%	0-1	2-3	4-5	6-7	8-9	10	#Pad 8 (sweep)
+96	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#FX 1 (rain)
+97	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#FX 2 (soundtrack)
+98	random.anvil_land 		 10%	0-1	2-3	4-5	6-7	8-9	10	#FX 3 (crystal)
+99	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#FX 4 (atmosphere)
+100	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#FX 5 (brightness)
+101	note.harp			100%	0-1	2-3	4-5	6-7	8-9	10	#FX 6 (goblins)
+102	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#FX 7 (echoes)
+103	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#FX 8 (sci-fi)
+104	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Sitar
+105	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Banjo
+106	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Shamisen
+107	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Koto
+108	mob.chicken.plop		 25%	0-1	2-3	4-5	6-7	8-9	10	#Kalimba
+109	mob.ghast.affectionate_scream	  5%	0-1	2-3	4-5	6-7	8-9	10	#Bag pipe
+110	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Fiddle
+111	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Shanai
+112	random.orb			 20%	0-1	2-3	4-5	6-7	8-9	10	#Tinkle Bell
+113	random.pop			 20%	0-1	2-3	4-5	6-7	8-9	10	#Agogo
+114	note.pling			 20%	0-1	2-3	4-5	6-7	8-9	10	#Steel Drums
+115	note.hat			 75%	0-1	2-3	4-5	6-7	8-9	10	#Woodblock
+116	note.snare			100%	0-1	2-3	4-5	6-7	8-9	10	#Taiko Drum
+117	random.pop			 20%	0-1	2-3	4-5	6-7	8-9	10	#Melodic Tom
+118	note.snare			100%	0-1	2-3	4-5	6-7	8-9	10	#Synth Drum
+119	ambient.weather.rain		 10%	0-1	2-3	4-5	6-7	8-9	10	#Reverse Cymbal
+120	random.chestclosed		 20%	0-1	2-3	4-5	6-7	8-9	10	#Guitar Fret Noise
+121	note.bassattack			100%	0-1	2-3	4-5	6-7	8-9	10	#Breath Noise
+122	ambient.weather.rain		 10%	0-1	2-3	4-5	6-7	8-9	10	#Seashore
+123	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Bird Tweet
+124	mob.zombie.unfect		 20%	0-1	2-3	4-5	6-7	8-9	10	#Telephone Ring
+125	ambient.weather.rain		 10%	0-1	2-3	4-5	6-7	8-9	10	#Helicopter
+126	ambient.weather.rain		 10%	0-1	2-3	4-5	6-7	8-9	10	#Applause
+127	random.explode			 25%	0-1	2-3	4-5	6-7	8-9	10	#Gunshot

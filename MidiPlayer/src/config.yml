@@ -1,0 +1,7 @@
+midiPlayer:
+  #Do not change
+  version: 1
+  #check for updates
+  checkVersion: true
+  #File containing instrument mapping
+  map: default.map
