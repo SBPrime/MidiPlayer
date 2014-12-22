@@ -40,6 +40,7 @@
  */
 package org.primesoft.midiplayer;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Server;
@@ -51,6 +52,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.primesoft.midiplayer.commands.GlobalPlayMidiCommand;
 import org.primesoft.midiplayer.commands.PlayMidiCommand;
 import org.primesoft.midiplayer.commands.ReloadCommand;
+import org.primesoft.midiplayer.mcstats.MetricsLite;
 
 /**
  *
@@ -66,6 +68,7 @@ public class MidiPlayerMain extends JavaPlugin {
      * The instance of the class
      */
     private static MidiPlayerMain s_instance;
+       
 
     /**
      * Send message to the log
@@ -103,6 +106,10 @@ public class MidiPlayerMain extends JavaPlugin {
         return s_instance;
     }
 
+    /**
+     * Metrics
+     */
+    private MetricsLite m_metrics;
 
     /**
      * The plugin version
@@ -135,6 +142,16 @@ public class MidiPlayerMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        try {
+            MetricsLite metrics = new MetricsLite(this);
+            if (!metrics.isOptOut()) {
+                m_metrics = metrics;
+                m_metrics.start();
+            }
+        } catch (IOException e) {
+            log("Error initializing MCStats: " + e.getMessage());
+        }
+        
         Server server = getServer();
         PluginDescriptionFile desc = getDescription();
         s_prefix = String.format("[%s]", desc.getName());
