@@ -42,120 +42,42 @@ package org.primesoft.midiplayer.track;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.primesoft.midiplayer.ConfigProvider;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
 /**
- * Basic music track for playing notes
- * @author prime
+ * This is a global palayer track.
+ * Music played by this track is heard all over the server
+ * for selected players
+ * @author SBPrime
  */
-public abstract class BaseTrack {
+public class PlayerTrack extends BasePlayerTrack {
 
-    /**
-     * Legth of 1/2 tick in miliseconds
-     */
-    private final static int HALF_TICK = 1000 / ConfigProvider.TICKS_PER_SECOND / 2;
-
-    /**
-     * Number of miliseconds to wait before performing loop
-     */
-    private final static int LOOP_WAIT = 1000;
-
-    /**
-     * Music track notes
-     */
-    private final NoteFrame[] m_notes;
-
-    /**
-     * Current track wait time
-     */
-    private long m_wait;
-
-    /**
-     * Is the track looped
-     */
-    private final boolean m_isLooped;
-
-    /**
-     * Track position
-     */
-    private int m_pos;
-
-    /**
-     * Next note to play
-     */
-    private NoteFrame m_nextNote;
-
-    public BaseTrack(NoteFrame[] notes, boolean loop) {
-        m_isLooped = loop;
-        m_notes = notes;
-        
-        
-        rewind();
+    @Override
+    protected Location getLocation() {
+        return null;
     }
-
     
-    /**
-     * Rewind track to the begining
-     */
-    public void rewind() {
-        m_pos = 0;
-        if (m_notes != null && m_notes.length > 0) {
-            m_nextNote = m_notes[0];
-            m_wait = m_nextNote.getWait();
-        } else {
-            m_nextNote = null;
-            m_wait = 0;
-        }
+    public PlayerTrack(NoteFrame[] notes) {
+        this(notes, false);
     }
 
-    /**
-     * Get list of players that should hear the music
-     *
-     * @return
-     */
-    protected abstract Player[] getPlayers();
-
-    /**
-     * Get the sound location
-     *
-     * @return
-     */
-    protected abstract Location getLocation();
-
-    public void play(long delta) {
-        m_wait -= delta;
-
-        final Player[] players = getPlayers();
-        final Location location = getLocation();
-
-        while (m_wait <= HALF_TICK && m_nextNote != null) {
-            for (Player p : players) {
-                m_nextNote.play(p, location);
-            }
-
-            m_pos++;
-            if (m_pos < m_notes.length) {
-                m_nextNote = m_notes[m_pos];
-                m_wait += m_nextNote.getWait();
-            } else if (m_isLooped) {
-                m_pos %= m_notes.length;
-                m_nextNote = m_notes[m_pos];
-
-                m_wait += LOOP_WAIT;
-            } else {
-                m_nextNote = null;
-            }
-        }
+    public PlayerTrack(NoteFrame[] notes, boolean loop) {
+        this((Player[])null, notes, loop);
     }
 
-    /**
-     * Is track finished
-     *
-     * @return
-     */
-    public boolean isFinished() {
-        return m_nextNote == null;
+    public PlayerTrack(Player[] initialPlayers, NoteFrame[] notes) {
+        this(initialPlayers, notes, false);
+    }
+    
+    public PlayerTrack(Player initialPlayer, NoteFrame[] notes) {
+        this(initialPlayer, notes, false);
     }
 
+    public PlayerTrack(Player initialPlayer, NoteFrame[] notes, boolean loop) {
+        this(new Player[]{initialPlayer}, notes, loop);
+    }
+    
+    public PlayerTrack(Player[] initialPlayers, NoteFrame[] notes, boolean loop) {
+        super(initialPlayers, notes, loop);
+    }
 }

@@ -40,122 +40,100 @@
  */
 package org.primesoft.midiplayer.track;
 
-import org.bukkit.Location;
+import java.util.HashSet;
 import org.bukkit.entity.Player;
-import org.primesoft.midiplayer.ConfigProvider;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
 /**
- * Basic music track for playing notes
- * @author prime
+ * This is a basic track that holds a player list
+ * @author SBPrime
  */
-public abstract class BaseTrack {
+public abstract class BasePlayerTrack extends BaseTrack {
 
-    /**
-     * Legth of 1/2 tick in miliseconds
-     */
-    private final static int HALF_TICK = 1000 / ConfigProvider.TICKS_PER_SECOND / 2;
+    private final HashSet<Player> m_players;
 
-    /**
-     * Number of miliseconds to wait before performing loop
-     */
-    private final static int LOOP_WAIT = 1000;
+    @Override
+    protected Player[] getPlayers() {
+        synchronized (m_players) {
+            return m_players.toArray(new Player[0]);
+        }
+    }
 
-    /**
-     * Music track notes
-     */
-    private final NoteFrame[] m_notes;
+    public BasePlayerTrack(NoteFrame[] notes) {
+        this(notes, false);
+    }
 
-    /**
-     * Current track wait time
-     */
-    private long m_wait;
+    public BasePlayerTrack(NoteFrame[] notes, boolean loop) {
+        this((Player[])null, notes, loop);
+    }
 
-    /**
-     * Is the track looped
-     */
-    private final boolean m_isLooped;
+    public BasePlayerTrack(Player[] initialPlayers, NoteFrame[] notes) {
+        this(initialPlayers, notes, false);
+    }
+    
+    public BasePlayerTrack(Player initialPlayer, NoteFrame[] notes) {
+        this(initialPlayer, notes, false);
+    }
 
-    /**
-     * Track position
-     */
-    private int m_pos;
+    public BasePlayerTrack(Player initialPlayer, NoteFrame[] notes, boolean loop) {
+        this(new Player[]{initialPlayer}, notes, loop);
+    }
+    
+    public BasePlayerTrack(Player[] initialPlayers, NoteFrame[] notes, boolean loop) {
+        super(notes, loop);
 
-    /**
-     * Next note to play
-     */
-    private NoteFrame m_nextNote;
+        m_players = new HashSet<Player>();
 
-    public BaseTrack(NoteFrame[] notes, boolean loop) {
-        m_isLooped = loop;
-        m_notes = notes;
-        
-        
-        rewind();
+        if (initialPlayers != null) {
+            synchronized (m_players) {
+                for (Player p : initialPlayers) {
+                    if (p != null && !m_players.contains(p)) {
+                        m_players.add(p);
+                    }
+                }
+            }
+        }
     }
 
     
     /**
-     * Rewind track to the begining
+     * Add player listening to track
+     * @param player
+     * @return 
      */
-    public void rewind() {
-        m_pos = 0;
-        if (m_notes != null && m_notes.length > 0) {
-            m_nextNote = m_notes[0];
-            m_wait = m_nextNote.getWait();
-        } else {
-            m_nextNote = null;
-            m_wait = 0;
+    public boolean addPlayer(Player player) {
+        if (player == null || !player.isOnline()) {
+            return false;
         }
-    }
-
-    /**
-     * Get list of players that should hear the music
-     *
-     * @return
-     */
-    protected abstract Player[] getPlayers();
-
-    /**
-     * Get the sound location
-     *
-     * @return
-     */
-    protected abstract Location getLocation();
-
-    public void play(long delta) {
-        m_wait -= delta;
-
-        final Player[] players = getPlayers();
-        final Location location = getLocation();
-
-        while (m_wait <= HALF_TICK && m_nextNote != null) {
-            for (Player p : players) {
-                m_nextNote.play(p, location);
+        synchronized (m_players) {
+            if (m_players.contains(player)) {
+                return false;
             }
-
-            m_pos++;
-            if (m_pos < m_notes.length) {
-                m_nextNote = m_notes[m_pos];
-                m_wait += m_nextNote.getWait();
-            } else if (m_isLooped) {
-                m_pos %= m_notes.length;
-                m_nextNote = m_notes[m_pos];
-
-                m_wait += LOOP_WAIT;
-            } else {
-                m_nextNote = null;
-            }
+            
+            m_players.add(player);
         }
+        
+        return true;
     }
-
+    
+    
     /**
-     * Is track finished
-     *
-     * @return
+     * Remove player listening to track
+     * @param player
+     * @return 
      */
-    public boolean isFinished() {
-        return m_nextNote == null;
+    public boolean removePlayer(Player player) {
+        if (player == null || !player.isOnline()) {
+            return false;
+        }
+        synchronized (m_players) {
+            if (!m_players.contains(player)) {
+                return false;
+            }
+            
+            m_players.remove(player);
+        }
+        
+        return true;
     }
-
 }
