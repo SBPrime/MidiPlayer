@@ -38,78 +38,124 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.musicplayer.commands;
+package org.primesoft.musicplayer.track;
 
-import java.io.File;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.primesoft.musicplayer.ConfigProvider;
-import org.primesoft.musicplayer.MusicPlayerMain;
-import static org.primesoft.musicplayer.MusicPlayerMain.log;
-import org.primesoft.musicplayer.VersionChecker;
-import org.primesoft.musicplayer.instruments.MapFileParser;
+import org.primesoft.musicplayer.midiparser.NoteFrame;
 
 /**
  *
- * @author SBPrime
+ * @author prime
  */
-public class ReloadCommand extends BaseCommand {
+public abstract class BaseTrack {
 
-    private final MusicPlayerMain m_pluginMain;
+    /**
+     * Legth of 1/2 tick in miliseconds
+     */
+    private final static int HALF_TICK = 1000 / ConfigProvider.TICKS_PER_SECOND / 2;
 
-    public ReloadCommand(MusicPlayerMain pluginMain) {
-        m_pluginMain = pluginMain;
+    /**
+     * Number of miliseconds to wait before performing loop
+     */
+    private final static int LOOP_WAIT = 100;
+
+    /**
+     * Music track notes
+     */
+    private final NoteFrame[] m_notes;
+
+    /**
+     * Current track wait time
+     */
+    private long m_wait;
+
+    /**
+     * Is the track looped
+     */
+    private final boolean m_isLooped;
+
+    /**
+     * Track position
+     */
+    private int m_pos;
+
+    /**
+     * Next note to play
+     */
+    private NoteFrame m_nextNote;
+
+    public BaseTrack(NoteFrame[] notes, boolean loop) {
+        m_isLooped = loop;
+        m_notes = notes;
+        
+        
+        rewind();
     }
 
-    @Override
-    public boolean onCommand(CommandSender cs, Command cmnd, String name, String[] args) {
-        if (args != null && args.length > 0) {
-            return false;
-        }
-
-        Player player = (cs instanceof Player) ? (Player) cs : null;
-
-        m_pluginMain.reloadConfig();
-        ReloadConfig(player);
-        return true;
-    }
-
-    public boolean ReloadConfig(Player player) {
-        if (!ConfigProvider.load(m_pluginMain)) {
-            MusicPlayerMain.say(player, "Error loading config");
-            return false;
-        }
-
-        if (ConfigProvider.getCheckUpdate()) {
-            log(VersionChecker.CheckVersion(m_pluginMain.getVersion()));
-        }
-        if (!ConfigProvider.isConfigUpdated()) {
-            log("Please update your config file!");
-        }
-
-        if (!ReloadInstrumentMap(player)) {
-            return false;
-        }
-        MusicPlayerMain.say(player, "Config loaded");
-        return true;
-    }
-
-    private boolean ReloadInstrumentMap(Player player) {
-        String mapFileName = ConfigProvider.getInstrumentMapFile();
-        File mapFile = new File(ConfigProvider.getPluginFolder(), mapFileName);
-        System.out.println(mapFile);
-        if (MapFileParser.loadMap(mapFile)) {
-            MusicPlayerMain.say(player, "Instrument map loaded.");
+    
+    /**
+     * Rewind track to the begining
+     */
+    public void rewind() {
+        m_pos = 0;
+        if (m_notes != null && m_notes.length > 0) {
+            m_nextNote = m_notes[0];
+            m_wait = m_nextNote.getWait();
         } else {
-            MusicPlayerMain.say(player, "Error loading instrument map " + mapFileName);
-            if (!MapFileParser.loadDefaultMap()) {
-                MusicPlayerMain.say(player, "Error loading default instrument map.");
-                return false;
+            m_nextNote = null;
+            m_wait = 0;
+        }
+    }
+
+    /**
+     * Get list of players that should hear the music
+     *
+     * @return
+     */
+    protected abstract Player[] getPlayers();
+
+    /**
+     * Get the sound location
+     *
+     * @return
+     */
+    protected abstract Location getLocation();
+
+    public void play(long delta) {
+        m_wait -= delta;
+
+        final Player[] players = getPlayers();
+        final Location location = getLocation();
+
+        while (m_wait <= HALF_TICK && m_nextNote != null) {
+            for (Player p : players) {
+                m_nextNote.play(p, location);
+            }
+
+            m_pos++;
+            if (m_pos < m_notes.length) {
+                m_nextNote = m_notes[m_pos];
+                m_wait += m_nextNote.getWait();
+            } else if (m_isLooped) {
+                m_pos %= m_notes.length;
+                m_nextNote = m_notes[m_pos];
+
+                m_wait += LOOP_WAIT;
             } else {
-                MusicPlayerMain.say(player, "Loaded default instrument map.");
+                m_nextNote = null;
             }
         }
-        return true;
     }
+
+    /**
+     * Is track finished
+     *
+     * @return
+     */
+    public boolean isFinished() {
+        return m_nextNote == null;
+    }
+
 }

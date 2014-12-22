@@ -67,13 +67,17 @@ public class NoteFrame {
     public NoteFrame(long delta, List<TrackEntry> notes) {
         m_wait = delta;
 
-        final int cnt = notes.size();
-        m_notes = new NoteEntry[cnt];
+        if (notes == null) {
+            m_notes = new NoteEntry[0];
+        } else {
+            final int cnt = notes.size();
+            m_notes = new NoteEntry[cnt];
 
-        int i = 0;
-        for (TrackEntry entry : notes) {
-            m_notes[i] = entry.getNote();
-            i++;
+            int i = 0;
+            for (TrackEntry entry : notes) {
+                m_notes[i] = entry.getNote();
+                i++;
+            }
         }
     }
 
@@ -85,7 +89,7 @@ public class NoteFrame {
         if (location == null) {
             location = player.getLocation();
         }
-        for (NoteEntry note : m_notes) {            
+        for (NoteEntry note : m_notes) {
             note.play(player, location);
         }
     }

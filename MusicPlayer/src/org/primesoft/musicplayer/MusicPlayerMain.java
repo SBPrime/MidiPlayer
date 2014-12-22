@@ -40,11 +40,10 @@
  */
 package org.primesoft.musicplayer;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.Location;
+import org.bukkit.Instrument;
+import org.bukkit.Note;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -52,13 +51,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
+import org.primesoft.musicplayer.commands.PlayMidiCommand;
 import org.primesoft.musicplayer.commands.ReloadCommand;
-import org.primesoft.musicplayer.instruments.InstrumentMap;
-import org.primesoft.musicplayer.midiparser.MidiParser;
-import org.primesoft.musicplayer.midiparser.NoteFrame;
-import org.primesoft.musicplayer.midiparser.NoteTrack;
-import org.primesoft.musicplayer.midiparser.TrackEntry;
 
 /**
  *
@@ -120,14 +114,16 @@ public class MusicPlayerMain extends JavaPlugin {
 
     private PluginCommand m_commandPlay;
 
-    private BukkitScheduler m_scheduler;
 
     /**
      * The plugin version
      */
     private String m_version;
 
-    private final HashMap<String, NoteFrame[]> m_playerTracks = new HashMap<String, NoteFrame[]>();
+    /**
+     * The music player
+     */
+    private MusicPlayer m_player;
 
     public String getVersion() {
         return m_version;
@@ -141,16 +137,20 @@ public class MusicPlayerMain extends JavaPlugin {
         s_instance = this;
 
         m_version = desc.getVersion();
+        m_player = new MusicPlayer(this, server.getScheduler());
 
-        ReloadCommand commandHandler = new ReloadCommand(this);
-        m_commandPlay = getCommand("playmidi");
+        ReloadCommand reloadHandler = new ReloadCommand(this);
+        PlayMidiCommand playHandler = new PlayMidiCommand(this, m_player);
+
         m_commandTest = getCommand("test");
+        
+        m_commandPlay = getCommand("playmidi");
+        m_commandPlay.setExecutor(playHandler);
+
         m_commandReload = getCommand("mpreload");
-        m_commandReload.setExecutor(commandHandler);
+        m_commandReload.setExecutor(reloadHandler);
 
-        m_scheduler = server.getScheduler();
-
-        if (!commandHandler.ReloadConfig(null)) {
+        if (!reloadHandler.ReloadConfig(null)) {
             log("Error loading config");
             return;
         }
@@ -159,14 +159,19 @@ public class MusicPlayerMain extends JavaPlugin {
     }
 
     @Override
+    public void onDisable() {
+        m_player.stop();
+        super.onDisable();
+    }
+    
+    
+    
+    @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player = sender instanceof Player ? (Player) sender : null;
 
         if (player != null) {
-            if (command.equals(m_commandPlay)) {
-                doMusicTest(player, args.length == 1 ? args[0] : null);
-                return true;
-            } else if (command.equals(m_commandTest)) {
+            if (command.equals(m_commandTest)) {
                 doTest(player);
                 return true;
             }
@@ -175,91 +180,7 @@ public class MusicPlayerMain extends JavaPlugin {
         return super.onCommand(sender, command, label, args);
     }
 
-    private void doMusicTest(final Player player, String fileName) {
-        final int TICK_LEN = 50;
-        final int TICK_MIN = 50;
-
-        final Location location = player.getLocation();
-        final MusicPlayerMain plugin = this;
-        final String name = player.getName();
-
-        synchronized (m_playerTracks) {
-            if (m_playerTracks.containsKey(name)) {
-                m_playerTracks.remove(name);
-            }
-        }
-
-        if (fileName == null) {
-            return;
-        }
-        NoteTrack track = MidiParser.loadFile(new File(getDataFolder(), fileName));
-        if (track == null || track.isError()) {
-            say(player, "Error loading midi track: " + track.getMessage());
-            return;
-        }
-
-        final NoteFrame[] notes = track.getNotes();
-        synchronized (m_playerTracks) {
-            m_playerTracks.put(name, notes);
-        }
-        final int cnt = notes.length;
-
-        final Runnable task = new Runnable() {
-            private int m_pos = 0;
-            private final HashMap<String, NoteFrame[]> m_tracks = plugin.m_playerTracks;
-
-            @Override
-            public void run() {
-                synchronized (m_tracks) {
-                    if (!m_tracks.containsKey(name) || m_tracks.get(name) != notes) {
-                        return;
-                    }
-                }
-
-                NoteFrame current;
-                NoteFrame next = notes[m_pos];
-
-                long delay;
-
-                do {
-                    current = next;
-                    m_pos++;
-                    next = m_pos < cnt ? notes[m_pos] : null;
-
-                    if (current != null) {
-                        current.play(player, location);
-                    }
-                    delay = next != null ? next.getWait() : Integer.MAX_VALUE;
-                } while (delay < TICK_MIN);
-
-                if (next != null) {
-                    long waitTicks = (long) Math.round((double) delay / TICK_LEN) - 1;
-                    m_scheduler.runTaskLater(plugin, this, waitTicks);
-                }
-            }
-        };
-
-        m_scheduler.runTaskLater(this, task, 1);
-    }
-
     private void doTest(final Player player) {
-        //player.playNote(player.getLocation(), Instrument.PIANO, Note.natural(1, Note.Tone.G));
-
-        final JavaPlugin plugin = this;
-        final Runnable task = new Runnable() {
-            int lp = 0;
-
-            @Override
-            public void run() {                
-                new TrackEntry(0, InstrumentMap.getDefault(), lp / 12, lp % 12, 1.0f)
-                        .getNote().play(player, player.getLocation());
-                lp++;
-                if (lp < 24) {
-                    m_scheduler.runTaskLater(plugin, this, 6);
-                }
-            }
-        };
-
-        m_scheduler.runTaskLater(this, task, 1);
+        player.playNote(player.getLocation(), Instrument.PIANO, Note.natural(1, Note.Tone.G));
     }
 }

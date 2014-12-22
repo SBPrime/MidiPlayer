@@ -44,72 +44,50 @@ import java.io.File;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.primesoft.musicplayer.ConfigProvider;
-import org.primesoft.musicplayer.MusicPlayerMain;
-import static org.primesoft.musicplayer.MusicPlayerMain.log;
-import org.primesoft.musicplayer.VersionChecker;
-import org.primesoft.musicplayer.instruments.MapFileParser;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.primesoft.musicplayer.MusicPlayer;
+import static org.primesoft.musicplayer.MusicPlayerMain.say;
+import org.primesoft.musicplayer.midiparser.MidiParser;
+import org.primesoft.musicplayer.midiparser.NoteFrame;
+import org.primesoft.musicplayer.midiparser.NoteTrack;
+import org.primesoft.musicplayer.track.GlobalTrack;
 
 /**
  *
  * @author SBPrime
  */
-public class ReloadCommand extends BaseCommand {
+public class PlayMidiCommand extends BaseCommand {
 
-    private final MusicPlayerMain m_pluginMain;
+    private final MusicPlayer m_player;
+    private GlobalTrack m_currentTrack;
+    private final JavaPlugin m_plugin;
 
-    public ReloadCommand(MusicPlayerMain pluginMain) {
-        m_pluginMain = pluginMain;
+    public PlayMidiCommand(JavaPlugin plugin, MusicPlayer player) {
+        m_plugin = plugin;
+        m_player = player;
+        m_currentTrack = null;
     }
 
     @Override
     public boolean onCommand(CommandSender cs, Command cmnd, String name, String[] args) {
-        if (args != null && args.length > 0) {
-            return false;
+        m_player.removeTrack(m_currentTrack);
+
+        String fileName = args != null && args.length > 0 ? args[0] : null;
+        if (fileName == null) {
+            return true;
         }
 
-        Player player = (cs instanceof Player) ? (Player) cs : null;
-
-        m_pluginMain.reloadConfig();
-        ReloadConfig(player);
-        return true;
-    }
-
-    public boolean ReloadConfig(Player player) {
-        if (!ConfigProvider.load(m_pluginMain)) {
-            MusicPlayerMain.say(player, "Error loading config");
-            return false;
+        Player player = cs instanceof Player ? (Player) cs : null;
+        NoteTrack track = MidiParser.loadFile(new File(m_plugin.getDataFolder(), fileName));
+        if (track == null || track.isError()) {
+            say(player, "Error loading midi track: " + track.getMessage());
+            return true;
         }
 
-        if (ConfigProvider.getCheckUpdate()) {
-            log(VersionChecker.CheckVersion(m_pluginMain.getVersion()));
-        }
-        if (!ConfigProvider.isConfigUpdated()) {
-            log("Please update your config file!");
-        }
+        final NoteFrame[] notes = track.getNotes();
+        m_currentTrack = new GlobalTrack(m_plugin, notes, true);
+        m_player.playTrack(m_currentTrack);
 
-        if (!ReloadInstrumentMap(player)) {
-            return false;
-        }
-        MusicPlayerMain.say(player, "Config loaded");
-        return true;
-    }
-
-    private boolean ReloadInstrumentMap(Player player) {
-        String mapFileName = ConfigProvider.getInstrumentMapFile();
-        File mapFile = new File(ConfigProvider.getPluginFolder(), mapFileName);
-        System.out.println(mapFile);
-        if (MapFileParser.loadMap(mapFile)) {
-            MusicPlayerMain.say(player, "Instrument map loaded.");
-        } else {
-            MusicPlayerMain.say(player, "Error loading instrument map " + mapFileName);
-            if (!MapFileParser.loadDefaultMap()) {
-                MusicPlayerMain.say(player, "Error loading default instrument map.");
-                return false;
-            } else {
-                MusicPlayerMain.say(player, "Loaded default instrument map.");
-            }
-        }
         return true;
     }
 }
