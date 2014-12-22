@@ -1,5 +1,5 @@
 name: MidiPlayer
-main: org.primesoft.musicplayer.MidiPlayerMain
+main: org.primesoft.midiplayer.MidiPlayerMain
 version: 0.0.1
 website: 
 dev-url: 
@@ -14,12 +14,12 @@ commands:
     description: 'Play midi file for calling player'
     usage: /<command>
     permission: midiplayer.play
-    alias: play
+    aliases: play
   playglobalmidi:
     description: 'Play midi file for all players on the server'
     usage: /<command>
     permission: midiplayer.playglobal
-    alias: gplay
+    aliases: gplay
 permissions:
   musicplayer.*:
     description: Grants access to all MidiPlayer permissions
