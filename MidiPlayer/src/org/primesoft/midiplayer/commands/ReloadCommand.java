@@ -98,7 +98,6 @@ public class ReloadCommand extends BaseCommand {
     private boolean ReloadInstrumentMap(Player player) {
         String mapFileName = ConfigProvider.getInstrumentMapFile();
         File mapFile = new File(ConfigProvider.getPluginFolder(), mapFileName);
-        System.out.println(mapFile);
         if (MapFileParser.loadMap(mapFile)) {
             MidiPlayerMain.say(player, "Instrument map loaded.");
         } else {
