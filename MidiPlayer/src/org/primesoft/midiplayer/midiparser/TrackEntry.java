@@ -41,8 +41,6 @@
 package org.primesoft.midiplayer.midiparser;
 
 import org.primesoft.midiplayer.instruments.Instrument;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.instruments.InstrumentEntry;
 import org.primesoft.midiplayer.utils.InOutParam;
 
@@ -50,11 +48,11 @@ import org.primesoft.midiplayer.utils.InOutParam;
  *
  * @author SBPrime
  */
-public class TrackEntry {
+class TrackEntry {
 
     private long m_milis;    
     
-    private NoteEntry m_note;
+    private final NoteEntry m_note;
 
     public NoteEntry getNote() {
         return m_note;

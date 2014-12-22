@@ -58,7 +58,7 @@ import org.primesoft.midiplayer.midiparser.NoteTrack;
 import org.primesoft.midiplayer.track.PlayerTrack;
 
 /**
- *
+ * Play midi command
  * @author SBPrime
  */
 public class PlayMidiCommand extends BaseCommand implements Listener {

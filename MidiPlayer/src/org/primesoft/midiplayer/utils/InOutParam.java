@@ -45,6 +45,7 @@ package org.primesoft.midiplayer.utils;
  * to java functions
  *
  * @author SBPrime
+ * @param <T>
  */
 public class InOutParam<T> {
 

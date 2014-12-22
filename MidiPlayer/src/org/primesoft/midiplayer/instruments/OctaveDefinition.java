@@ -41,7 +41,7 @@
 package org.primesoft.midiplayer.instruments;
 
 /**
- *
+ * This class defines octave range for instrument entry
  * @author SBPrime
  */
 public class OctaveDefinition {

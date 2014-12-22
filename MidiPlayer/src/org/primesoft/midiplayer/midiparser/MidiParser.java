@@ -46,10 +46,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -66,11 +64,11 @@ import org.primesoft.midiplayer.utils.Pair;
  * @author SBPrime
  */
 public class MidiParser {
-
-    private final static int MIN_OCTAVE = 0;
-    private final static int MAX_OCTAVE = 1;
-    private final static int CNT_OCTAVE = MAX_OCTAVE - MIN_OCTAVE;
-
+    /**
+     * Load notes from MIDI file
+     * @param midiFile
+     * @return 
+     */
     public static NoteTrack loadFile(File midiFile) {
         try {
             return parseFile(midiFile);
@@ -81,6 +79,14 @@ public class MidiParser {
         }
     }
 
+    
+    /**
+     * Parse the midi file
+     * @param midiFile
+     * @return
+     * @throws IOException
+     * @throws InvalidMidiDataException 
+     */
     private static NoteTrack parseFile(File midiFile) throws IOException, InvalidMidiDataException {
         if (midiFile == null || !midiFile.canRead()) {
             return new NoteTrack("Unable to read the MIDI file");
@@ -110,6 +116,14 @@ public class MidiParser {
         return new NoteTrack(frames.toArray(new NoteFrame[0]));
     }
 
+    /**
+     * Parse midi track
+     * @param track
+     * @param tempo
+     * @param resolution
+     * @param instruments
+     * @return 
+     */
     private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo,
             int resolution, HashMap<Integer, Instrument> instruments) {
         double lTempo = tempo.getValue();
@@ -173,6 +187,13 @@ public class MidiParser {
         return result;
     }
     
+    
+    /**
+     * Convert track entries to note entries.
+     * Convert to delta
+     * @param notes
+     * @return 
+     */
     private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, List<TrackEntry>>> notes) {
         List<NoteFrame> result = new ArrayList<NoteFrame>();
         
@@ -189,6 +210,12 @@ public class MidiParser {
         return result;
     }
 
+    /**
+     * Get instrument assigned to channel
+     * @param instruments instrument channel map
+     * @param channel
+     * @return 
+     */
     private static Instrument getInstrument(HashMap<Integer, Instrument> instruments, int channel) {
         if (instruments == null) {
             return null;
@@ -201,6 +228,13 @@ public class MidiParser {
         return InstrumentMap.getDefault();
     }
 
+    
+    /**
+     * Assign instrument to channel
+     * @param instruments Instrument channel map
+     * @param channel
+     * @param instrument 
+     */
     private static void setInstrument(HashMap<Integer, Instrument> instruments, int channel, Instrument instrument) {
         if (instruments == null) {
             return;

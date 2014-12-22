@@ -45,7 +45,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 /**
- *
+ * Collection of MIDI notes played on the same time
  * @author SBPrime
  */
 public class NoteFrame {
@@ -55,6 +55,10 @@ public class NoteFrame {
      */
     private final long m_wait;
 
+    /**
+     * Get the wait dellay in miliseconds
+     * @return 
+     */
     public long getWait() {
         return m_wait;
     }

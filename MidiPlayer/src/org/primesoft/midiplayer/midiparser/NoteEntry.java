@@ -44,7 +44,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 /**
- *
+ * MIDI note.
  * @author SBPrime
  */
 public class NoteEntry {

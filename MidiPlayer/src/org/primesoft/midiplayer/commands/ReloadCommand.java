@@ -51,7 +51,7 @@ import org.primesoft.midiplayer.VersionChecker;
 import org.primesoft.midiplayer.instruments.MapFileParser;
 
 /**
- *
+ * Reload configuration command
  * @author SBPrime
  */
 public class ReloadCommand extends BaseCommand {

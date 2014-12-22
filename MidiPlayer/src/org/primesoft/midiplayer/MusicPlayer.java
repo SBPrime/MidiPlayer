@@ -47,11 +47,13 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
- *
+ * Main player timer class
  * @author SBPrime
  */
 public class MusicPlayer implements Runnable {
-
+    /**
+     * Is the player running
+     */
     private boolean m_isRunning;
 
     /**
@@ -77,7 +79,7 @@ public class MusicPlayer implements Runnable {
     }
 
     /**
-     *
+     * Stop the player
      */
     public void stop() {
         synchronized (m_playingTracks){

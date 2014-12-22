@@ -41,20 +41,15 @@
 package org.primesoft.midiplayer.instruments;
 
 /**
- *
+ * Mapping to minecraft sounds
  * @author SBPrime
  */
-public class InstrumentEntry {
-    
+public class InstrumentEntry {    
     /**
      * Instrument path
      */
     private final String m_patch;
 
-    /**
-     * MIDI program id
-     */
-    private final int m_program;
 
     /**
      * The volume scale
@@ -71,14 +66,6 @@ public class InstrumentEntry {
     }
     
     /**
-     * MIDI program id
-     * @return 
-     */
-    public int getProgramId() {
-        return m_program;
-    }
-    
-    /**
      * Get the volume scale
      * @return 
      */
@@ -86,8 +73,7 @@ public class InstrumentEntry {
         return m_volumeScale;
     }
         
-    public InstrumentEntry(int program, String patch, float volumeScale) {
-        m_program = program;
+    public InstrumentEntry(String patch, float volumeScale) {
         m_patch = patch;
         m_volumeScale = volumeScale;
     }

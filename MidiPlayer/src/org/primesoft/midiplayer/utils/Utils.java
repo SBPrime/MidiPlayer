@@ -41,7 +41,6 @@
 package org.primesoft.midiplayer.utils;
 
 import java.util.Set;
-import org.primesoft.midiplayer.instruments.OctaveDefinition;
 
 /**
  *
@@ -49,6 +48,13 @@ import org.primesoft.midiplayer.instruments.OctaveDefinition;
  */
 public class Utils {
 
+    /**
+     * Try to parse a string
+     *
+     * @param s
+     * @param result
+     * @return
+     */
     public static boolean TryParseInteger(String s, InOutParam<Integer> result) {
         if (s == null || result == null) {
             return false;
@@ -63,13 +69,13 @@ public class Utils {
         }
     }
 
-    
     /**
      * Do the set contain any of the elements
+     *
      * @param <T>
      * @param keySet
      * @param values
-     * @return 
+     * @return
      */
     public static <T> boolean containsAny(Set<T> keySet, T[] values) {
         if (keySet == null || values == null) {

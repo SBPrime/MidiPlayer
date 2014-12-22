@@ -54,7 +54,7 @@ import org.primesoft.midiplayer.utils.InOutParam;
 import org.primesoft.midiplayer.utils.Utils;
 
 /**
- *
+ * Instrument map file parser
  * @author SBPrime
  */
 public class MapFileParser {
@@ -91,7 +91,7 @@ public class MapFileParser {
     }
 
     /**
-     * Load instrument mapping from resource
+     * Load instrument mapping from default resource
      *
      * @return
      */
@@ -125,8 +125,8 @@ public class MapFileParser {
      * @throws IOException
      */
     private static boolean loadMap(BufferedReader file) throws IOException {
-        HashMap<OctaveDefinition, InstrumentEntry> d = new HashMap<OctaveDefinition, InstrumentEntry>();
-        HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments
+        final HashMap<OctaveDefinition, InstrumentEntry> d = new HashMap<OctaveDefinition, InstrumentEntry>();
+        final HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments
                 = new HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>>();
 
         String line;
@@ -174,13 +174,12 @@ public class MapFileParser {
                 MidiPlayerMain.log("Invalid instrument mapping line: " + line);
             } else if (isDefault && Utils.containsAny(d.keySet(), octaves)) {
                 MidiPlayerMain.log("Duplicate default instrument entry: " + line);
-            } else if (!isDefault && instruments.containsKey(id)
-                    && Utils.containsAny(instruments.get(id).keySet(), octaves)) {
+            } else if (!isDefault && instruments.containsKey(id.getValue())
+                    && Utils.containsAny(instruments.get(id.getValue()).keySet(), octaves)) {
                 MidiPlayerMain.log("Duplicate instrument entry: " + line);
 
             } else {
-                InstrumentEntry i = new InstrumentEntry(id.isSet() ? id.getValue() : -1,
-                        patch, volume.getValue() / 100.0f);
+                InstrumentEntry i = new InstrumentEntry(patch, volume.getValue() / 100.0f);
 
                 HashMap<OctaveDefinition, InstrumentEntry> hash;
                 if (isDefault) {

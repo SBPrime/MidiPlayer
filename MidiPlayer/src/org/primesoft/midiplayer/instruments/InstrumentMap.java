@@ -48,13 +48,18 @@ import java.util.Map;
  * @author prime
  */
 public class InstrumentMap {
-
+    /**
+     * All known instruments map
+     */
     private static final HashMap<Integer, Instrument> s_instruments = new HashMap<Integer, Instrument>();
 
+    /**
+     * Default/fallback instrument
+     */
     private static Instrument s_defaultInstrument;
-
+    
     static {
-        InstrumentEntry instrument = new InstrumentEntry(-1, "note.harp", 1.0f);
+        InstrumentEntry instrument = new InstrumentEntry("note.harp", 1.0f);
         HashMap<OctaveDefinition, InstrumentEntry> octaves = new HashMap<OctaveDefinition, InstrumentEntry>();
 
         for (int i = 0; i < 11; i += 2) {
@@ -64,8 +69,18 @@ public class InstrumentMap {
         s_defaultInstrument = new Instrument(octaves);
     }
 
+    
+    /**
+     * MTA access mutex
+     */
     private static final Object s_mutex = new Object();
 
+    
+    /**
+     * Get instrument for MIDI program
+     * @param program
+     * @return 
+     */
     public static Instrument getInstrument(int program) {
         synchronized (s_mutex) {
             Instrument instrument = null;
@@ -77,6 +92,11 @@ public class InstrumentMap {
         }
     }
 
+    
+    /**
+     * Get default instrument
+     * @return 
+     */
     public static Instrument getDefault() {
         synchronized (s_mutex) {
             return s_defaultInstrument;

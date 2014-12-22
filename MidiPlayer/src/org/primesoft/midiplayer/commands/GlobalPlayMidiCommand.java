@@ -53,7 +53,7 @@ import org.primesoft.midiplayer.midiparser.NoteTrack;
 import org.primesoft.midiplayer.track.GlobalTrack;
 
 /**
- *
+ * Play global midi music command
  * @author SBPrime
  */
 public class GlobalPlayMidiCommand extends BaseCommand {

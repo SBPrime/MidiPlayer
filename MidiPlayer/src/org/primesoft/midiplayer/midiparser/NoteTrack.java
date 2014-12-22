@@ -41,7 +41,7 @@
 package org.primesoft.midiplayer.midiparser;
 
 /**
- *
+ * Resoult for MidiParser
  * @author SBPrime
  */
 public class NoteTrack {

@@ -89,16 +89,16 @@ public abstract class BaseTrack {
     public BaseTrack(NoteFrame[] notes, boolean loop) {
         m_isLooped = loop;
         m_notes = notes;
-        
-        
+                
         rewind();
     }
 
     
     /**
-     * Rewind track to the begining
+     * Rewind track to the begining.
+     * Allows you to add the track once again to the player.
      */
-    public void rewind() {
+    public final void rewind() {
         m_pos = 0;
         if (m_notes != null && m_notes.length > 0) {
             m_nextNote = m_notes[0];
@@ -157,5 +157,4 @@ public abstract class BaseTrack {
     public boolean isFinished() {
         return m_nextNote == null;
     }
-
 }

@@ -44,17 +44,26 @@ import java.util.HashMap;
 import org.primesoft.midiplayer.utils.InOutParam;
 
 /**
- *
+ * Midi instrument
  * @author SBPrime
  */
 public class Instrument {
-
+    /**
+     * Instrument entries for octaves
+     */
     private final HashMap<OctaveDefinition, InstrumentEntry> m_octaveEntries;
 
     public Instrument(HashMap<OctaveDefinition, InstrumentEntry> octaveEntries) {
         m_octaveEntries = octaveEntries;
     }
 
+    
+    /**
+     * Get instrument entry for provided octave (first in range)
+     * @param octave The octave
+     * @param startOctave The instrument entry starting midi octave
+     * @return Instrument entry
+     */
     public InstrumentEntry getEntry(int octave, InOutParam<Integer> startOctave) {        
         for (OctaveDefinition od : m_octaveEntries.keySet()) {
             int from = od.getFrom();
