@@ -96,17 +96,32 @@ public class ReloadCommand extends BaseCommand {
     }
 
     private boolean ReloadInstrumentMap(Player player) {
-        String mapFileName = ConfigProvider.getInstrumentMapFile();
-        File mapFile = new File(ConfigProvider.getPluginFolder(), mapFileName);
-        if (MapFileParser.loadMap(mapFile)) {
-            MidiPlayerMain.say(player, "Instrument map loaded.");
+        String instrumentName = ConfigProvider.getInstrumentMapFile();
+        String drumName = ConfigProvider.getDrumMapFile();
+        File instrumentFile = new File(ConfigProvider.getPluginFolder(), instrumentName);
+        File drumFile = new File(ConfigProvider.getPluginFolder(), drumName);
+        
+        if (MapFileParser.loadMap(instrumentFile)) {
+            MidiPlayerMain.say(player, "Instrument map file loaded.");
         } else {
-            MidiPlayerMain.say(player, "Error loading instrument map " + mapFileName);
+            MidiPlayerMain.say(player, "Error loading instrument map file");
             if (!MapFileParser.loadDefaultMap()) {
                 MidiPlayerMain.say(player, "Error loading default instrument map.");
                 return false;
             } else {
                 MidiPlayerMain.say(player, "Loaded default instrument map.");
+            }
+        }
+        
+        if (MapFileParser.loadDrumMap(drumFile)) {
+            MidiPlayerMain.say(player, "Drum map file loaded.");
+        } else {
+            MidiPlayerMain.say(player, "Error loading drum map file");
+            if (!MapFileParser.loadDefaultDrumMap()) {
+                MidiPlayerMain.say(player, "Error loading default drum map.");
+                return false;
+            } else {
+                MidiPlayerMain.say(player, "Loaded default drum map.");
             }
         }
         return true;

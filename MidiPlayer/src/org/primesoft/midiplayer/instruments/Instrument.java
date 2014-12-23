@@ -53,8 +53,9 @@ public class Instrument {
      */
     private final HashMap<OctaveDefinition, InstrumentEntry> m_octaveEntries;
 
+
     public Instrument(HashMap<OctaveDefinition, InstrumentEntry> octaveEntries) {
-        m_octaveEntries = octaveEntries;
+        m_octaveEntries = octaveEntries;        
     }
 
     

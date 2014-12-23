@@ -70,6 +70,25 @@ class TrackEntry {
         return m_note;
     }
 
+    public TrackEntry(long milis, InstrumentEntry instrument, float volume) {
+        float scale;
+
+        final String instrumentPatch;
+        
+        if (instrument != null) {
+            scale = Math.max(0, instrument.getVolumeScale());
+            instrumentPatch = instrument.getPatch();
+        } else {
+            scale = 0.0f;
+            instrumentPatch = null;
+        }
+        
+        m_milis = milis;
+        final float vv = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
+        
+        m_note = new NoteEntry(instrumentPatch, 1.0f, vv);
+    }
+    
     public TrackEntry(long milis, Instrument instrument, int octave, int note, float volume) {
         float scale;
 

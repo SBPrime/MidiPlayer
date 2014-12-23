@@ -55,6 +55,7 @@ import org.primesoft.midiplayer.utils.Utils;
 
 /**
  * Instrument map file parser
+ *
  * @author SBPrime
  */
 public class MapFileParser {
@@ -67,22 +68,49 @@ public class MapFileParser {
     /**
      * Load the map file from file
      *
-     * @param mapFile
+     * @param instrumentMap
      * @return
      */
-    public static boolean loadMap(File mapFile) {
-        BufferedReader file = null;
+    public static boolean loadMap(File instrumentMap) {
+        BufferedReader instrumentFile = null;
 
         try {
-            file = new BufferedReader(new FileReader(mapFile));
-            return loadMap(file);
+            instrumentFile = new BufferedReader(new FileReader(instrumentMap));
+            return loadMap(instrumentFile);
         } catch (IOException ex) {
             MidiPlayerMain.log("Error reading file.");
             return false;
         } finally {
-            if (file != null) {
+            if (instrumentFile != null) {
                 try {
-                    file.close();
+                    instrumentFile.close();
+                } catch (Exception ex) {
+                    //Ignore
+                }
+            }
+        }
+    }
+    
+    
+    /**
+     * Load the map file from file
+     *
+     * @param drumMap
+     * @return
+     */
+    public static boolean loadDrumMap(File drumMap) {
+        BufferedReader drumFile = null;
+        
+        try {
+            drumFile = new BufferedReader(new FileReader(drumMap));
+            return loadDrumMap(drumFile);
+        } catch (IOException ex) {
+            MidiPlayerMain.log("Error reading file.");
+            return false;
+        } finally {
+            if (drumFile != null) {
+                try {
+                    drumFile.close();
                 } catch (Exception ex) {
                     //Ignore
                 }
@@ -96,20 +124,50 @@ public class MapFileParser {
      * @return
      */
     public static boolean loadDefaultMap() {
-        BufferedReader file = null;
+        BufferedReader instrumentFile = null;
 
         try {
-            InputStream is = MapFileParser.class.getResourceAsStream("/default.map");
+            Class<?> c = MapFileParser.class;
+            InputStream isInstrument = c.getResourceAsStream("/default.map");
 
-            file = new BufferedReader(new InputStreamReader(is));
-            return loadMap(file);
+            instrumentFile = new BufferedReader(new InputStreamReader(isInstrument));
+            return loadMap(instrumentFile);
         } catch (IOException ex) {
             MidiPlayerMain.log("Error reading file.");
             return false;
         } finally {
-            if (file != null) {
+            if (instrumentFile != null) {
                 try {
-                    file.close();
+                    instrumentFile.close();
+                } catch (Exception ex) {
+                    //Ignore
+                }
+            }
+        }
+    }
+    
+    
+        /**
+     * Load drum mapping from default resource
+     *
+     * @return
+     */
+    public static boolean loadDefaultDrumMap() {
+        BufferedReader drumFile = null;
+
+        try {
+            Class<?> c = MapFileParser.class;
+            InputStream isDrum = c.getResourceAsStream("/default.drm");
+
+            drumFile = new BufferedReader(new InputStreamReader(isDrum));
+            return loadDrumMap(drumFile);
+        } catch (IOException ex) {
+            MidiPlayerMain.log("Error reading file.");
+            return false;
+        } finally {
+            if (drumFile != null) {
+                try {
+                    drumFile.close();
                 } catch (Exception ex) {
                     //Ignore
                 }
@@ -120,17 +178,74 @@ public class MapFileParser {
     /**
      * Load and parse the map file
      *
-     * @param file
+     * @param instrumentFile
      * @return
      * @throws IOException
      */
-    private static boolean loadMap(BufferedReader file) throws IOException {
-        final HashMap<OctaveDefinition, InstrumentEntry> d = new HashMap<OctaveDefinition, InstrumentEntry>();
+    private static boolean loadMap(BufferedReader instrumentFile) throws IOException {
+        final HashMap<OctaveDefinition, InstrumentEntry> defaultInstruments = new HashMap<OctaveDefinition, InstrumentEntry>();
         final HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments
                 = new HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>>();
 
+        parseInstrumentMap(instrumentFile, defaultInstruments, instruments);
+
+        if (defaultInstruments.isEmpty()) {
+            MidiPlayerMain.log("No default instrument.");
+            return false;
+        }
+
+        if (instruments.isEmpty()) {
+            MidiPlayerMain.log("No instruments defined.");
+            return false;
+        }
+
+        InstrumentMap.set(instruments, defaultInstruments);
+
+        return true;
+    }
+    
+    
+    /**
+     * Load and parse the map file
+     *
+     * @param instrumentFile
+     * @return
+     * @throws IOException
+     */
+    private static boolean loadDrumMap(BufferedReader drumFile) throws IOException {
+        final InOutParam<InstrumentEntry> defaultDrum = InOutParam.Out();
+        final HashMap<Integer, InstrumentEntry> drums = new HashMap<Integer, InstrumentEntry>();
+
+        parseDrumMap(drumFile, defaultDrum, drums);
+
+        if (!defaultDrum.isSet()) {
+            MidiPlayerMain.log("No default drum.");
+            return false;
+        }
+
+        if (drums.isEmpty()) {
+            MidiPlayerMain.log("No drums defined.");
+            return false;
+        }
+
+        InstrumentMap.set(drums, defaultDrum.getValue());
+
+        return true;
+    }
+
+    /**
+     * Parse the instrument map
+     *
+     * @param instrumentFile
+     * @param defaultInstrument
+     * @param instruments
+     * @throws IOException
+     */
+    private static void parseInstrumentMap(BufferedReader instrumentFile,
+            final HashMap<OctaveDefinition, InstrumentEntry> defaultInstrument,
+            final HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments) throws IOException {
         String line;
-        while ((line = file.readLine()) != null) {
+        while ((line = instrumentFile.readLine()) != null) {
             String cLine = line.trim().replace("\t", " ");
             if (cLine.startsWith(COMMENT)) {
                 //Whole line of comments
@@ -172,7 +287,7 @@ public class MapFileParser {
 
             if (hasError) {
                 MidiPlayerMain.log("Invalid instrument mapping line: " + line);
-            } else if (isDefault && Utils.containsAny(d.keySet(), octaves)) {
+            } else if (isDefault && Utils.containsAny(defaultInstrument.keySet(), octaves)) {
                 MidiPlayerMain.log("Duplicate default instrument entry: " + line);
             } else if (!isDefault && instruments.containsKey(id.getValue())
                     && Utils.containsAny(instruments.get(id.getValue()).keySet(), octaves)) {
@@ -183,7 +298,7 @@ public class MapFileParser {
 
                 HashMap<OctaveDefinition, InstrumentEntry> hash;
                 if (isDefault) {
-                    hash = d;
+                    hash = defaultInstrument;
                 } else {
                     int iid = id.getValue();
                     if (instruments.containsKey(iid)) {
@@ -199,20 +314,73 @@ public class MapFileParser {
                 }
             }
         }
+    }
 
-        if (d.isEmpty()) {
-            MidiPlayerMain.log("No default instrument.");
-            return false;
+    /**
+     * Parse the drum map
+     *
+     * @param drumFile
+     * @param defaultDrum
+     * @param drums
+     */
+    private static void parseDrumMap(BufferedReader drumFile,
+            InOutParam<InstrumentEntry> defaultDrum,
+            HashMap<Integer, InstrumentEntry> drums) throws IOException {
+        String line;
+        while ((line = drumFile.readLine()) != null) {
+            String cLine = line.trim().replace("\t", " ");
+            if (cLine.startsWith(COMMENT)) {
+                //Whole line of comments
+                continue;
+            }
+
+            String[] parts = split(cLine);
+
+            boolean hasError = false;
+            boolean isDefault = false;
+            InOutParam<Integer> id = InOutParam.Out();
+            InOutParam<Integer> volume = InOutParam.Out();
+            String patch = "";
+
+            if (parts.length >= 3) {
+                String sId = parts[0].trim();
+                patch = parts[1].trim();
+                String sVolume = parts[2].trim();
+
+                if (!Utils.TryParseInteger(sId, id)) {
+                    isDefault = sId.equalsIgnoreCase("D");
+                    hasError |= !isDefault;
+                }
+
+                if (sVolume.endsWith("%")) {
+                    if (!Utils.TryParseInteger(sVolume.substring(0, sVolume.length() - 1), volume)) {
+                        hasError = true;
+                    }
+                } else {
+                    hasError = true;
+                }
+
+                hasError |= patch.isEmpty() | !volume.isSet();
+            } else {
+                hasError = true;
+            }
+
+            if (hasError) {
+                MidiPlayerMain.log("Invalid drum mapping line: " + line);
+            } else if (isDefault && defaultDrum.isSet()) {
+                MidiPlayerMain.log("Duplicate default drum entry: " + line);
+            } else if (!isDefault && drums.containsKey(id.getValue())) {
+                MidiPlayerMain.log("Duplicate drum entry: " + line);
+            } else {
+                InstrumentEntry i = new InstrumentEntry(patch, volume.getValue() / 100.0f);
+
+                if (isDefault) {
+                    defaultDrum.setValue(i);
+                } else {
+                    drums.put(id.getValue(), i);
+                }
+            }
         }
-
-        if (instruments.isEmpty()) {
-            MidiPlayerMain.log("No instruments defined.");
-            return false;
-        }
-
-        InstrumentMap.set(instruments, d);
-
-        return true;
     }
 
     /**

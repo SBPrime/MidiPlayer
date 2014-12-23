@@ -5,3 +5,5 @@ midiPlayer:
   checkVersion: true
   #File containing instrument mapping
   map: default.map
+  #File containing drum machine mapping
+  drum: default.drm

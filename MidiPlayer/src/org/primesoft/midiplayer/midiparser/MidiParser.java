@@ -56,6 +56,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
+import org.primesoft.midiplayer.instruments.InstrumentEntry;
 import org.primesoft.midiplayer.utils.InOutParam;
 import org.primesoft.midiplayer.utils.Pair;
 
@@ -64,10 +65,12 @@ import org.primesoft.midiplayer.utils.Pair;
  * @author SBPrime
  */
 public class MidiParser {
+
     /**
      * Load notes from MIDI file
+     *
      * @param midiFile
-     * @return 
+     * @return
      */
     public static NoteTrack loadFile(File midiFile) {
         try {
@@ -79,13 +82,13 @@ public class MidiParser {
         }
     }
 
-    
     /**
      * Parse the midi file
+     *
      * @param midiFile
      * @return
      * @throws IOException
-     * @throws InvalidMidiDataException 
+     * @throws InvalidMidiDataException
      */
     private static NoteTrack parseFile(File midiFile) throws IOException, InvalidMidiDataException {
         if (midiFile == null || !midiFile.canRead()) {
@@ -106,26 +109,31 @@ public class MidiParser {
         List<TrackEntry> result = new ArrayList<TrackEntry>();
 
         HashMap<Integer, Instrument> instruments = new HashMap<Integer, Instrument>();
+        HashMap<Integer, Integer> masterVolume = new HashMap<Integer, Integer>();
+
         for (Track track : sequence.getTracks()) {
             result.addAll(parseTrack(track, tempo, resolution,
-                    instruments));
+                    instruments, masterVolume));
         }
 
         List<NoteFrame> frames = convertToNoteFrames(aggregate(result));
-        
+
         return new NoteTrack(frames.toArray(new NoteFrame[0]));
     }
 
     /**
      * Parse midi track
+     *
      * @param track
      * @param tempo
      * @param resolution
      * @param instruments
-     * @return 
+     * @return
      */
     private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo,
-            int resolution, HashMap<Integer, Instrument> instruments) {
+            int resolution,
+            HashMap<Integer, Instrument> instruments,
+            HashMap<Integer, Integer> masterVolume) {
         double lTempo = tempo.getValue();
 
         List<TrackEntry> result = new ArrayList<TrackEntry>();
@@ -165,13 +173,23 @@ public class MidiParser {
                     case ShortMessage.NOTE_ON: {
                         int velocity = sm.getData2();
                         if (velocity > 0 && milis >= 0) {
-                            int key = sm.getData1();
-                            int octave = (key / 12) - 1;
-                            int note = key % 12;
+                            final int key = sm.getData1();
+                            
+                            if (channel == 9 || channel == 10) {//9, 10 = Drum machine
+                                InstrumentEntry instrument = getDrum(key);
+                                if (instrument != null){
+                                    result.add(new TrackEntry(milis, instrument, 
+                                            getVolume(masterVolume, channel, velocity)));
+                                }
+                            } else {
+                                int octave = (key / 12) - 1;
+                                int note = key % 12;
 
-                            Instrument instrument = getInstrument(instruments, channel);
-                            if (instrument != null) {
-                                result.add(new TrackEntry(milis, instrument, octave, note, velocity / 127.0f));
+                                Instrument instrument = getInstrument(instruments, channel);
+                                if (instrument != null) {
+                                    result.add(new TrackEntry(milis, instrument, octave, note,
+                                            getVolume(masterVolume, channel, velocity)));
+                                }
                             }
                         }
                         break;
@@ -179,6 +197,13 @@ public class MidiParser {
                     case ShortMessage.PROGRAM_CHANGE:
                         setInstrument(instruments, channel, InstrumentMap.getInstrument(sm.getData1()));
                         break;
+                    case ShortMessage.CONTROL_CHANGE: {
+                        if (sm.getData1() == 0x7)//Master volume
+                        {
+                            setVolume(masterVolume, channel, sm.getData2());
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -186,35 +211,34 @@ public class MidiParser {
         tempo.setValue(lTempo);
         return result;
     }
-    
-    
+
     /**
-     * Convert track entries to note entries.
-     * Convert to delta
+     * Convert track entries to note entries. Convert to delta
+     *
      * @param notes
-     * @return 
+     * @return
      */
     private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, List<TrackEntry>>> notes) {
         List<NoteFrame> result = new ArrayList<NoteFrame>();
-        
-        
+
         long last = notes.get(0).getX1();
         for (Pair<Long, List<TrackEntry>> entry : notes) {
             long milis = entry.getX1();
-            
-            result.add(new NoteFrame(milis - last,  entry.getX2()));
-            
+
+            result.add(new NoteFrame(milis - last, entry.getX2()));
+
             last = milis;
         }
-        
+
         return result;
     }
 
     /**
      * Get instrument assigned to channel
+     *
      * @param instruments instrument channel map
      * @param channel
-     * @return 
+     * @return
      */
     private static Instrument getInstrument(HashMap<Integer, Instrument> instruments, int channel) {
         if (instruments == null) {
@@ -228,12 +252,12 @@ public class MidiParser {
         return InstrumentMap.getDefault();
     }
 
-    
     /**
      * Assign instrument to channel
+     *
      * @param instruments Instrument channel map
      * @param channel
-     * @param instrument 
+     * @param instrument
      */
     private static void setInstrument(HashMap<Integer, Instrument> instruments, int channel, Instrument instrument) {
         if (instruments == null) {
@@ -249,15 +273,16 @@ public class MidiParser {
 
     /**
      * Aggregate note entries based on time
+     *
      * @param notes
-     * @return 
+     * @return
      */
     private static List<Pair<Long, List<TrackEntry>>> aggregate(List<TrackEntry> notes) {
         HashMap<Long, List<TrackEntry>> tmp = new HashMap<Long, List<TrackEntry>>();
-              
+
         for (TrackEntry entry : notes) {
             final long milis = entry.getMilis();
-            
+
             final List<TrackEntry> list;
             if (tmp.containsKey(milis)) {
                 list = tmp.get(milis);
@@ -265,17 +290,34 @@ public class MidiParser {
                 list = new ArrayList<TrackEntry>();
                 tmp.put(milis, list);
             }
-            
+
             list.add(entry);
         }
 
         List<Long> keys = new ArrayList<Long>(tmp.keySet());
         Collections.sort(keys);
-        
+
         List<Pair<Long, List<TrackEntry>>> result = new ArrayList<Pair<Long, List<TrackEntry>>>();
         for (Long time : keys) {
             result.add(new Pair<Long, List<TrackEntry>>(time, tmp.get(time)));
         }
         return result;
+    }
+
+    private static void setVolume(HashMap<Integer, Integer> masterVolume, int channel, int volume) {
+        if (masterVolume.containsKey(channel)) {
+            masterVolume.remove(channel);
+        }
+
+        masterVolume.put(channel, volume);
+    }
+
+    private static float getVolume(HashMap<Integer, Integer> masterVolume, int channel, int velocity) {
+        int volume = masterVolume.containsKey(channel) ? masterVolume.get(channel) : 127;
+        return volume / 127.0f * velocity / 127.0f;
+    }
+
+    private static InstrumentEntry getDrum(int key) {
+        return InstrumentMap.getDrum(key);
     }
 }

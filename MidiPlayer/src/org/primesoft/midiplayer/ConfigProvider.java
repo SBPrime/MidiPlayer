@@ -71,6 +71,8 @@ public class ConfigProvider {
     private static File m_pluginFolder;
 
     private static String m_instrumentMap;
+    
+    private static String m_drumMap;
 
     /**
      * Plugin root folder
@@ -111,6 +113,10 @@ public class ConfigProvider {
     public static String getInstrumentMapFile() {
         return m_instrumentMap;
     }
+    
+    public static String getDrumMapFile() {
+        return m_drumMap;
+    }
 
     /**
      * Load configuration
@@ -136,6 +142,7 @@ public class ConfigProvider {
         m_checkUpdate = mainSection.getBoolean("checkVersion", true);
         m_isConfigUpdate = mainSection.getInt("version", 0) == CONFIG_VERSION;
         m_instrumentMap = mainSection.getString("map", "");
+        m_drumMap = mainSection.getString("drum", "");
 
         return true;
     }

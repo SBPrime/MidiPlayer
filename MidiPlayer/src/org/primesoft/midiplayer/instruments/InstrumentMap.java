@@ -52,11 +52,24 @@ public class InstrumentMap {
      * All known instruments map
      */
     private static final HashMap<Integer, Instrument> s_instruments = new HashMap<Integer, Instrument>();
+    
+    
+    /**
+     * The drum machine mapping
+     */
+    private static final HashMap<Integer, InstrumentEntry> s_drumMap = new HashMap<Integer, InstrumentEntry>();
+        
 
     /**
      * Default/fallback instrument
      */
     private static Instrument s_defaultInstrument;
+    
+    
+    /**
+     * Default drum instrument
+     */
+    private static InstrumentEntry s_defaultDrum;
     
     static {
         InstrumentEntry instrument = new InstrumentEntry("note.harp", 1.0f);
@@ -66,7 +79,8 @@ public class InstrumentMap {
             octaves.put(new OctaveDefinition(i, i + 1), instrument);
         }
 
-        s_defaultInstrument = new Instrument(octaves);
+        s_defaultInstrument = new Instrument(octaves);        
+        s_defaultDrum = new InstrumentEntry("note.bd", 1.0f);
     }
 
     
@@ -91,6 +105,27 @@ public class InstrumentMap {
             return instrument;
         }
     }
+    
+    
+    /**
+     * Get the drum instrument
+     * @param key
+     * @return 
+     */
+    public static InstrumentEntry getDrum(int key) {
+        synchronized (s_mutex)
+        {
+            InstrumentEntry instrument;
+            if (s_drumMap.containsKey(key)) {
+                instrument = s_drumMap.get(key);
+            }
+            else {
+                instrument = s_defaultDrum;
+            }
+            
+            return instrument;
+        }
+    }
 
     
     /**
@@ -107,17 +142,37 @@ public class InstrumentMap {
      * Set the instrument map
      *
      * @param instruments
-     * @param d
+     * @param defaultInstrument
      */
     public static void set(HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments,
-            HashMap<OctaveDefinition, InstrumentEntry> d) {
+            HashMap<OctaveDefinition, InstrumentEntry> defaultInstrument) {
         synchronized (s_mutex) {
             s_instruments.clear();
             for (Map.Entry<Integer, HashMap<OctaveDefinition, InstrumentEntry>> entrySet : instruments.entrySet()) {
                 s_instruments.put(entrySet.getKey(), new Instrument(entrySet.getValue()));
             }
 
-            s_defaultInstrument = new Instrument(d);
+            s_defaultInstrument = new Instrument(defaultInstrument);
+        }
+    }
+    
+    
+    
+    
+    /**
+     * Set the drum map
+     *
+     * @param drums
+     * @param defaultDrum
+     */
+    public static void set(HashMap<Integer, InstrumentEntry> drums, InstrumentEntry defaultDrum) {
+        synchronized (s_mutex) {
+            s_drumMap.clear();
+            for (Map.Entry<Integer, InstrumentEntry> entry : drums.entrySet())
+            {
+                s_drumMap.put(entry.getKey(), entry.getValue());
+            }
+            s_defaultDrum = defaultDrum;
         }
     }
 }
