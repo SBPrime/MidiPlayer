@@ -40,6 +40,7 @@
  */
 package org.primesoft.midiplayer.midiparser;
 
+import java.util.HashSet;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -68,7 +69,7 @@ public class NoteFrame {
      */
     private final NoteEntry[] m_notes;
 
-    public NoteFrame(long delta, List<TrackEntry> notes) {
+    public NoteFrame(long delta, HashSet<TrackEntry> notes) {
         m_wait = delta;
 
         if (notes == null) {

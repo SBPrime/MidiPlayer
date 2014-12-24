@@ -219,16 +219,14 @@ public class MapFileParser {
         parseDrumMap(drumFile, defaultDrum, drums);
 
         if (!defaultDrum.isSet()) {
-            MidiPlayerMain.log("No default drum.");
-            return false;
+            MidiPlayerMain.log("Warning: No default drum.");
         }
 
         if (drums.isEmpty()) {
-            MidiPlayerMain.log("No drums defined.");
-            return false;
+            MidiPlayerMain.log("Warning: No drums defined.");
         }
 
-        InstrumentMap.set(drums, defaultDrum.getValue());
+        InstrumentMap.set(drums, defaultDrum.isSet() ? defaultDrum.getValue() : null);
 
         return true;
     }

@@ -85,7 +85,7 @@ class TrackEntry {
         
         m_milis = milis;
         final float vv = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
-        
+    
         m_note = new NoteEntry(instrumentPatch, 1.0f, vv);
     }
     
@@ -120,4 +120,25 @@ class TrackEntry {
         
         m_note = new NoteEntry(instrumentPatch, frq, vv);
     }
+
+    @Override
+    public int hashCode() {
+        return (m_note != null ? m_note.hashCode() : 0) ^
+                ((Long)m_milis).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        TrackEntry other = obj instanceof TrackEntry ? (TrackEntry)obj : null;
+        if (other == null) 
+        {
+            return false;
+        }
+        
+        return m_milis == other.m_milis &&
+                ((m_note == null && other.m_note == null) || 
+                 (m_note!=null && m_note.equals(other.m_note)));
+    }
+    
+    
 }

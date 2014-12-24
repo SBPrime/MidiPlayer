@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
@@ -174,11 +175,11 @@ public class MidiParser {
                         int velocity = sm.getData2();
                         if (velocity > 0 && milis >= 0) {
                             final int key = sm.getData1();
-                            
+
                             if (channel == 9 || channel == 10) {//9, 10 = Drum machine
                                 InstrumentEntry instrument = getDrum(key);
-                                if (instrument != null){
-                                    result.add(new TrackEntry(milis, instrument, 
+                                if (instrument != null) {
+                                    result.add(new TrackEntry(milis, instrument,
                                             getVolume(masterVolume, channel, velocity)));
                                 }
                             } else {
@@ -218,11 +219,11 @@ public class MidiParser {
      * @param notes
      * @return
      */
-    private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, List<TrackEntry>>> notes) {
+    private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, HashSet<TrackEntry>>> notes) {
         List<NoteFrame> result = new ArrayList<NoteFrame>();
 
         long last = notes.get(0).getX1();
-        for (Pair<Long, List<TrackEntry>> entry : notes) {
+        for (Pair<Long, HashSet<TrackEntry>> entry : notes) {
             long milis = entry.getX1();
 
             result.add(new NoteFrame(milis - last, entry.getX2()));
@@ -277,29 +278,31 @@ public class MidiParser {
      * @param notes
      * @return
      */
-    private static List<Pair<Long, List<TrackEntry>>> aggregate(List<TrackEntry> notes) {
-        HashMap<Long, List<TrackEntry>> tmp = new HashMap<Long, List<TrackEntry>>();
+    private static List<Pair<Long, HashSet<TrackEntry>>> aggregate(List<TrackEntry> notes) {
+        HashMap<Long, HashSet<TrackEntry>> tmp = new HashMap<Long, HashSet<TrackEntry>>();
 
         for (TrackEntry entry : notes) {
             final long milis = entry.getMilis();
 
-            final List<TrackEntry> list;
+            final HashSet<TrackEntry> list;
             if (tmp.containsKey(milis)) {
                 list = tmp.get(milis);
             } else {
-                list = new ArrayList<TrackEntry>();
+                list = new HashSet<TrackEntry>();
                 tmp.put(milis, list);
             }
 
-            list.add(entry);
+            if (!list.contains(entry)) {
+                list.add(entry);
+            }
         }
 
         List<Long> keys = new ArrayList<Long>(tmp.keySet());
         Collections.sort(keys);
 
-        List<Pair<Long, List<TrackEntry>>> result = new ArrayList<Pair<Long, List<TrackEntry>>>();
+        List<Pair<Long, HashSet<TrackEntry>>> result = new ArrayList<Pair<Long, HashSet<TrackEntry>>>();
         for (Long time : keys) {
-            result.add(new Pair<Long, List<TrackEntry>>(time, tmp.get(time)));
+            result.add(new Pair<Long, HashSet<TrackEntry>>(time, tmp.get(time)));
         }
         return result;
     }
