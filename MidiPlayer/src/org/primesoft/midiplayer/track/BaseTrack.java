@@ -85,11 +85,17 @@ public abstract class BaseTrack {
      * Next note to play
      */
     private NoteFrame m_nextNote;
+    
+    /**
+     * Use the per player sound location
+     */
+    private final boolean m_perPlayerLocation;
 
-    public BaseTrack(NoteFrame[] notes, boolean loop) {
+    protected BaseTrack(NoteFrame[] notes, boolean loop, boolean singleLocation) {
         m_isLooped = loop;
         m_notes = notes;
-                
+        m_perPlayerLocation = !singleLocation;        
+        
         rewind();
     }
 
@@ -117,21 +123,28 @@ public abstract class BaseTrack {
     protected abstract Player[] getPlayers();
 
     /**
-     * Get the sound location
-     *
+     * Get the sound global location 
+     * (if null the get player location wil be used)
      * @return
      */
-    protected abstract Location getLocation();
+    protected Location getLocation() { return null; }
+    
+    /**
+     * Get the sound location
+     * @param player The player to get the location for
+     * @return
+     */
+    protected Location getLocation(Player player)  { return null; }
 
     public void play(long delta) {
         m_wait -= delta;
 
         final Player[] players = getPlayers();
-        final Location location = getLocation();
+        final Location location = m_perPlayerLocation ? null : getLocation();
 
         while (m_wait <= HALF_TICK && m_nextNote != null) {
             for (Player p : players) {
-                m_nextNote.play(p, location);
+                m_nextNote.play(p, m_perPlayerLocation ? getLocation(p) : location);
             }
 
             m_pos++;

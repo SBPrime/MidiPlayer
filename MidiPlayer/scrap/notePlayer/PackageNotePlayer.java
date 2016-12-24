@@ -127,7 +127,7 @@ public class PackageNotePlayer implements INotePlayer {
 
         final String serverPackage = String.format("net.minecraft.server.%s", version);
 
-        Class<?> craftPlayerClass = Reflection.classFromName(String.format("org.bukkit.craftbukkit.%s.entity", version),
+        Class<?> craftPlayerClass = Reflection.classFromName(String.format("org.bukkit.craftbukkit+v1_9_R1v1_8_R3.%s.entity", version),
                 "CraftPlayer", "Unable to create CraftPlayer class");
         Class<?> entityPlayerClass = Reflection.classFromName(serverPackage, "EntityPlayer",
                 "Unable to create EntityPlayer class");

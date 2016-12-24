@@ -59,28 +59,28 @@ public abstract class BasePlayerTrack extends BaseTrack {
         }
     }
 
-    public BasePlayerTrack(NoteFrame[] notes) {
-        this(notes, false);
+    public BasePlayerTrack(NoteFrame[] notes, boolean singleLocation) {
+        this(notes, false, singleLocation);
     }
 
-    public BasePlayerTrack(NoteFrame[] notes, boolean loop) {
-        this((Player[])null, notes, loop);
+    public BasePlayerTrack(NoteFrame[] notes, boolean loop, boolean singleLocation) {
+        this((Player[])null, notes, loop, singleLocation);
     }
 
-    public BasePlayerTrack(Player[] initialPlayers, NoteFrame[] notes) {
-        this(initialPlayers, notes, false);
+    public BasePlayerTrack(Player[] initialPlayers, NoteFrame[] notes, boolean singleLocation) {
+        this(initialPlayers, notes, false, singleLocation);
     }
     
-    public BasePlayerTrack(Player initialPlayer, NoteFrame[] notes) {
-        this(initialPlayer, notes, false);
+    public BasePlayerTrack(Player initialPlayer, NoteFrame[] notes, boolean singleLocation) {
+        this(initialPlayer, notes, false, singleLocation);
     }
 
-    public BasePlayerTrack(Player initialPlayer, NoteFrame[] notes, boolean loop) {
-        this(new Player[]{initialPlayer}, notes, loop);
+    public BasePlayerTrack(Player initialPlayer, NoteFrame[] notes, boolean loop, boolean singleLocation) {
+        this(new Player[]{initialPlayer}, notes, loop, singleLocation);
     }
     
-    public BasePlayerTrack(Player[] initialPlayers, NoteFrame[] notes, boolean loop) {
-        super(notes, loop);
+    public BasePlayerTrack(Player[] initialPlayers, NoteFrame[] notes, boolean loop, boolean singleLocation) {
+        super(notes, loop, singleLocation);
 
         m_players = new HashSet<Player>();
 

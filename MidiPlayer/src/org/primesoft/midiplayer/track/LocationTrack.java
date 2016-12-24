@@ -79,7 +79,7 @@ public class LocationTrack extends BasePlayerTrack {
     }
     
     public LocationTrack(Location location, Player[] initialPlayers, NoteFrame[] notes, boolean loop) {
-        super(initialPlayers, notes, loop);
+        super(initialPlayers, notes, loop, true);
         
         m_location = location;
     }

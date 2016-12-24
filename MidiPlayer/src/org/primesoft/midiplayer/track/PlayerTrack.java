@@ -40,7 +40,6 @@
  */
 package org.primesoft.midiplayer.track;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
@@ -51,11 +50,6 @@ import org.primesoft.midiplayer.midiparser.NoteFrame;
  * @author SBPrime
  */
 public class PlayerTrack extends BasePlayerTrack {
-
-    @Override
-    protected Location getLocation() {
-        return null;
-    }
     
     public PlayerTrack(NoteFrame[] notes) {
         this(notes, false);
@@ -78,6 +72,6 @@ public class PlayerTrack extends BasePlayerTrack {
     }
     
     public PlayerTrack(Player[] initialPlayers, NoteFrame[] notes, boolean loop) {
-        super(initialPlayers, notes, loop);
+        super(initialPlayers, notes, loop, false);
     }
 }

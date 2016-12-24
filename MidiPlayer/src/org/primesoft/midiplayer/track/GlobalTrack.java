@@ -59,12 +59,7 @@ public class GlobalTrack extends BaseTrack {
     @Override
     protected Player[] getPlayers() {
         //TODO: Optimize me!
-        return m_plugin.getServer().getOnlinePlayers();
-    }
-
-    @Override
-    protected Location getLocation() {
-        return null;
+        return m_plugin.getServer().getOnlinePlayers().toArray(new Player[0]);
     }
 
     public GlobalTrack(JavaPlugin plugin, NoteFrame[] notes) {
@@ -72,7 +67,7 @@ public class GlobalTrack extends BaseTrack {
     }
     
     public GlobalTrack(JavaPlugin plugin, NoteFrame[] notes, boolean loop) {
-        super(notes, loop);
+        super(notes, loop, true);
         m_plugin = plugin;
     }
 }
