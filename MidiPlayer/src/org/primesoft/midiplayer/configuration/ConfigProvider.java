@@ -43,6 +43,7 @@ package org.primesoft.midiplayer.configuration;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.bukkit.SoundCategory;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationOptions;
 import org.bukkit.configuration.ConfigurationSection;
@@ -73,6 +74,8 @@ public class ConfigProvider {
     private static String m_instrumentMap;
 
     private static String m_drumMap;
+
+    private static SoundCategory m_soundCategory;
 
     /**
      * Plugin root folder
@@ -116,6 +119,10 @@ public class ConfigProvider {
 
     public static String getDrumMapFile() {
         return m_drumMap;
+    }
+
+    public static SoundCategory getSoundCategory() {
+        return m_soundCategory;
     }
 
     /**
@@ -167,12 +174,24 @@ public class ConfigProvider {
         }
 
         m_configVersion = mainSection.getString("version", "?");
-        
+
         m_checkUpdate = mainSection.getBoolean("checkVersion", true);
         m_isConfigUpdate = mainSection.getInt("version", 0) == ConfigurationUpdater.CONFIG_VERSION;
         m_instrumentMap = mainSection.getString("map", "");
         m_drumMap = mainSection.getString("drum", "");
 
+        m_soundCategory = parseSoundCategory(mainSection.getString("soundCategory", "music"));
+
         return true;
+    }
+
+    private static SoundCategory parseSoundCategory(String categoryName) {
+        for (SoundCategory c : SoundCategory.values()) {
+            if (categoryName.equalsIgnoreCase(c.toString())) {
+                return c;
+            }
+        }
+        
+        return SoundCategory.MUSIC;
     }
 }
