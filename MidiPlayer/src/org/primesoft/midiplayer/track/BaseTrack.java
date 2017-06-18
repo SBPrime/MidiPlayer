@@ -42,7 +42,7 @@ package org.primesoft.midiplayer.track;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.primesoft.midiplayer.ConfigProvider;
+import org.primesoft.midiplayer.configuration.ConfigProvider;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
 /**

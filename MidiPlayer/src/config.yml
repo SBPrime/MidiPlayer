@@ -1,9 +1,11 @@
 midiPlayer:
   #Do not change
-  version: 1
+  version: 2
+  #the category of sounds
+  soundCategory: music
   #check for updates
   checkVersion: true
   #File containing instrument mapping
   map: default.map
   #File containing drum machine mapping
-  drum: default.drm
+  drum: default.drm  

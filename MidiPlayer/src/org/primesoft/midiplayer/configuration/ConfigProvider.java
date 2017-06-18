@@ -38,12 +38,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.primesoft.midiplayer;
+package org.primesoft.midiplayer.configuration;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationOptions;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfigurationOptions;
 import org.bukkit.plugin.java.JavaPlugin;
+import static org.primesoft.midiplayer.MidiPlayerMain.log;
 
 /**
  * This class contains configuration
@@ -57,11 +62,6 @@ public class ConfigProvider {
      */
     public static final int TICKS_PER_SECOND = 20;
 
-    /**
-     * The config file version
-     */
-    private static final int CONFIG_VERSION = 1;
-
     private static boolean m_checkUpdate = false;
 
     private static boolean m_isConfigUpdate = false;
@@ -71,7 +71,7 @@ public class ConfigProvider {
     private static File m_pluginFolder;
 
     private static String m_instrumentMap;
-    
+
     private static String m_drumMap;
 
     /**
@@ -113,7 +113,7 @@ public class ConfigProvider {
     public static String getInstrumentMapFile() {
         return m_instrumentMap;
     }
-    
+
     public static String getDrumMapFile() {
         return m_drumMap;
     }
@@ -138,9 +138,38 @@ public class ConfigProvider {
             return false;
         }
 
+        int configVersion = mainSection.getInt("version", 0);
+        if (configVersion < ConfigurationUpdater.CONFIG_VERSION) {
+            if (ConfigurationUpdater.updateConfig(config, configVersion)) {
+                SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+                File oldConfig = new File(m_pluginFolder, "config.yml");
+                File newConfig = new File(m_pluginFolder, String.format("config.v%1$s", formater.format(new Date())));
+
+                oldConfig.renameTo(newConfig);
+
+                ConfigurationOptions options = config.options();
+                if (options instanceof FileConfigurationOptions) {
+                    FileConfigurationOptions fOptions = (FileConfigurationOptions) options;
+                    fOptions.header(null);
+                    fOptions.copyHeader(true);
+                }
+
+                plugin.saveConfig();
+
+                int newVersion = mainSection.getInt("version", 0);
+                log(String.format("Configuration updated from %1$s to %2$s.", configVersion, newVersion));
+                if (newVersion != ConfigurationUpdater.CONFIG_VERSION) {
+                    log(String.format("Unable to update config to the required version (%1$s).", ConfigurationUpdater.CONFIG_VERSION));
+                }
+            } else {
+                log(String.format("Unable to update config to the required version (%1$s).", ConfigurationUpdater.CONFIG_VERSION));
+            }
+        }
+
         m_configVersion = mainSection.getString("version", "?");
+        
         m_checkUpdate = mainSection.getBoolean("checkVersion", true);
-        m_isConfigUpdate = mainSection.getInt("version", 0) == CONFIG_VERSION;
+        m_isConfigUpdate = mainSection.getInt("version", 0) == ConfigurationUpdater.CONFIG_VERSION;
         m_instrumentMap = mainSection.getString("map", "");
         m_drumMap = mainSection.getString("drum", "");
 
