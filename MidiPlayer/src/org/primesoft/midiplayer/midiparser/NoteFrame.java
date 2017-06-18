@@ -41,7 +41,6 @@
 package org.primesoft.midiplayer.midiparser;
 
 import java.util.HashSet;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

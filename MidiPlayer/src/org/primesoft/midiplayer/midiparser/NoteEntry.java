@@ -42,6 +42,7 @@ package org.primesoft.midiplayer.midiparser;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.primesoft.midiplayer.configuration.ConfigProvider;
 
 /**
  * MIDI note.
@@ -74,7 +75,7 @@ public class NoteEntry {
         if (m_frq < 0 || m_frq > 2) {
             return;
         }
-        player.playSound(location, m_instrumentPatch, m_volume, m_frq);
+        player.playSound(location, m_instrumentPatch, ConfigProvider.getSoundCategory(), m_volume, m_frq);
     }
 
     @Override
