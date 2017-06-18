@@ -1,6 +1,6 @@
 name: MidiPlayer
 main: org.primesoft.midiplayer.MidiPlayerMain
-version: 0.2.0
+version: 0.3.0
 website: 
 dev-url: 
 description: 
