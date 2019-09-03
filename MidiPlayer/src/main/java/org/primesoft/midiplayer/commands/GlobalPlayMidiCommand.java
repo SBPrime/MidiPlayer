@@ -80,6 +80,8 @@ public class GlobalPlayMidiCommand extends BaseCommand {
             return true;
         }
 
+        boolean loop = args.length > 1 ? args[1].equalsIgnoreCase("true") : false;
+
         Player player = cs instanceof Player ? (Player) cs : null;
         NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder(), fileName));
         if (noteTrack == null) {
@@ -93,7 +95,7 @@ public class GlobalPlayMidiCommand extends BaseCommand {
         }
 
         final NoteFrame[] notes = noteTrack.getNotes();
-        m_currentTrack = new GlobalTrack(m_plugin, notes, false);
+        m_currentTrack = new GlobalTrack(m_plugin, notes, loop);
         m_player.playTrack(m_currentTrack);
 
         return true;
