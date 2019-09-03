@@ -188,12 +188,16 @@ public class ConfigProvider {
     }
 
     private static SoundCategory parseSoundCategory(String categoryName) {
-        for (SoundCategory c : SoundCategory.values()) {
-            if (categoryName.equalsIgnoreCase(c.toString())) {
-                return c;
+        if (categoryName != null) {
+            categoryName = categoryName.trim().toUpperCase();
+            for (SoundCategory c : SoundCategory.values()) {
+                if (categoryName.equals(c.name())) {
+                    return c;
+                }
             }
         }
-        
+
+        log(Level.WARNING, "Specified SoundCategory not found! Using " + SoundCategory.MUSIC.name());
         return SoundCategory.MUSIC;
     }
 }

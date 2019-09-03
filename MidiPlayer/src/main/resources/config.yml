@@ -2,7 +2,7 @@ midiPlayer:
   #Do not change
   version: 2
   #the category of sounds
-  soundCategory: music
+  soundCategory: records
   #check for updates
   checkVersion: true
   #File containing instrument mapping
