@@ -1,10 +1,8 @@
-name: MidiPlayer
+name: ${project.name}
 main: org.primesoft.midiplayer.MidiPlayerMain
-version: 0.3.0
-website: 
-dev-url: 
-description: 
+version: ${project.version}
 authors: [SBPrime]
+description: ${project.description}
 commands:
   mpreload:
     description: 'Reload the config'
