@@ -112,7 +112,7 @@ public class MusicPlayer implements Runnable {
     /**
      * Remove track from playback
      *
-     * @param track
+     * @param track The track to be removed from this MusicPlayer instance
      */
     public void removeTrack(BaseTrack track) {
         if (track == null) {
@@ -126,7 +126,7 @@ public class MusicPlayer implements Runnable {
     /**
      * Play provided track
      *
-     * @param track
+     * @param track The track to be played by this MusicPlayer instance
      */
     public void playTrack(BaseTrack track) {
         if (track == null) {

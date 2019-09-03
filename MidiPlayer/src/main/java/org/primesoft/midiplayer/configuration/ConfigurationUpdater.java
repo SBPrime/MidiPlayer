@@ -41,6 +41,8 @@
 package org.primesoft.midiplayer.configuration;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.configuration.Configuration;
 import org.primesoft.midiplayer.configuration.migration.ConfigUpdater_v1_v2;
 
@@ -50,7 +52,7 @@ import org.primesoft.midiplayer.configuration.migration.ConfigUpdater_v1_v2;
  * @author SBPrime
  */
 public class ConfigurationUpdater {
-    private final static HashMap<Integer, IConfigurationUpdater> s_configurationUpdaters;
+    private final static Map<Integer, IConfigurationUpdater> s_configurationUpdaters;
     
     
     /**

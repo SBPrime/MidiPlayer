@@ -40,7 +40,6 @@
  */
 package org.primesoft.midiplayer.configuration;
 
-import java.util.List;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**
@@ -92,17 +91,4 @@ public abstract class BaseConfigurationUpdater implements IConfigurationUpdater 
     protected void setIfNone(ConfigurationSection section, String key, Object value) {
         section.set(key, section.get(key, value));
     }
-    
-    protected <T> void addToList(List<T> list, T value) {
-        if (list == null) {
-            return;
-        }
-        
-        if (list.contains(value)) {
-            return;
-        }
-        
-        list.add(value);
-    }
-
 }

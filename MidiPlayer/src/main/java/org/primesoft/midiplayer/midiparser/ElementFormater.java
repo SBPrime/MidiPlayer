@@ -51,8 +51,8 @@ public class ElementFormater {
     /**
      * Convert division type to name
      *
-     * @param divType
-     * @return
+     * @param divType The type of the division
+     * @return The name of the division
      */
     public static String getDivisionName(float divType) {
         if (divType == Sequence.PPQ) {

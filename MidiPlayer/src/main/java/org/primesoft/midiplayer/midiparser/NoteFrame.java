@@ -40,7 +40,8 @@
  */
 package org.primesoft.midiplayer.midiparser;
 
-import java.util.HashSet;
+import java.util.Set;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -56,8 +57,8 @@ public class NoteFrame {
     private final long m_wait;
 
     /**
-     * Get the wait dellay in miliseconds
-     * @return 
+     * Get the wait delay in milliseconds
+     * @return The wait delay
      */
     public long getWait() {
         return m_wait;
@@ -68,7 +69,7 @@ public class NoteFrame {
      */
     private final NoteEntry[] m_notes;
 
-    public NoteFrame(long delta, HashSet<TrackEntry> notes) {
+    public NoteFrame(long delta, Set<TrackEntry> notes) {
         m_wait = delta;
 
         if (notes == null) {

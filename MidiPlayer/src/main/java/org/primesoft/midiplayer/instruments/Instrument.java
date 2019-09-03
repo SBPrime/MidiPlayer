@@ -40,7 +40,8 @@
  */
 package org.primesoft.midiplayer.instruments;
 
-import java.util.HashMap;
+import java.util.Map;
+
 import org.primesoft.midiplayer.utils.InOutParam;
 
 /**
@@ -51,10 +52,10 @@ public class Instrument {
     /**
      * Instrument entries for octaves
      */
-    private final HashMap<OctaveDefinition, InstrumentEntry> m_octaveEntries;
+    private final Map<OctaveDefinition, InstrumentEntry> m_octaveEntries;
 
 
-    public Instrument(HashMap<OctaveDefinition, InstrumentEntry> octaveEntries) {
+    public Instrument(Map<OctaveDefinition, InstrumentEntry> octaveEntries) {
         m_octaveEntries = octaveEntries;        
     }
 

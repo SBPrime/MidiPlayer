@@ -59,7 +59,7 @@ public class InstrumentEntry {
 
     /**
      * Sound patch
-     * @return 
+     * @return The patch of this instrument
      */
     public String getPatch() {
         return m_patch;
@@ -67,7 +67,7 @@ public class InstrumentEntry {
     
     /**
      * Get the volume scale
-     * @return 
+     * @return The volume scale for this instrument
      */
     public float getVolumeScale() {
         return m_volumeScale;

@@ -51,13 +51,13 @@ public class InstrumentMap {
     /**
      * All known instruments map
      */
-    private static final HashMap<Integer, Instrument> s_instruments = new HashMap<Integer, Instrument>();
+    private static final Map<Integer, Instrument> s_instruments = new HashMap<Integer, Instrument>();
     
     
     /**
      * The drum machine mapping
      */
-    private static final HashMap<Integer, InstrumentEntry> s_drumMap = new HashMap<Integer, InstrumentEntry>();
+    private static final Map<Integer, InstrumentEntry> s_drumMap = new HashMap<Integer, InstrumentEntry>();
         
 
     /**
@@ -73,7 +73,7 @@ public class InstrumentMap {
     
     static {
         InstrumentEntry instrument = new InstrumentEntry("note.harp", 1.0f);
-        HashMap<OctaveDefinition, InstrumentEntry> octaves = new HashMap<OctaveDefinition, InstrumentEntry>();
+        Map<OctaveDefinition, InstrumentEntry> octaves = new HashMap<OctaveDefinition, InstrumentEntry>();
 
         for (int i = 0; i < 11; i += 2) {
             octaves.put(new OctaveDefinition(i, i + 1), instrument);
@@ -92,15 +92,12 @@ public class InstrumentMap {
     
     /**
      * Get instrument for MIDI program
-     * @param program
-     * @return 
+     * @param program The program to use
+     * @return The instrument for this MIDI program
      */
     public static Instrument getInstrument(int program) {
         synchronized (s_mutex) {
-            Instrument instrument = null;
-            if (s_instruments.containsKey(program)) {
-                instrument = s_instruments.get(program);
-            }
+            Instrument instrument = s_instruments.getOrDefault(program, s_defaultInstrument);
 
             return instrument;
         }
@@ -109,19 +106,13 @@ public class InstrumentMap {
     
     /**
      * Get the drum instrument
-     * @param key
-     * @return 
+     * @param key The key to find this instrument
+     * @return The selected drum instrument
      */
     public static InstrumentEntry getDrum(int key) {
         synchronized (s_mutex)
         {
-            InstrumentEntry instrument;
-            if (s_drumMap.containsKey(key)) {
-                instrument = s_drumMap.get(key);
-            }
-            else {
-                instrument = s_defaultDrum;
-            }
+            InstrumentEntry instrument = s_drumMap.getOrDefault(key, s_defaultDrum);
             
             return instrument;
         }
@@ -130,7 +121,7 @@ public class InstrumentMap {
     
     /**
      * Get default instrument
-     * @return 
+     * @return The default instrument
      */
     public static Instrument getDefault() {
         synchronized (s_mutex) {
@@ -141,14 +132,14 @@ public class InstrumentMap {
     /**
      * Set the instrument map
      *
-     * @param instruments
-     * @param defaultInstrument
+     * @param instruments The instruments in the map
+     * @param defaultInstrument The default instrument
      */
-    public static void set(HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments,
-            HashMap<OctaveDefinition, InstrumentEntry> defaultInstrument) {
+    public static void set(Map<Integer, Map<OctaveDefinition, InstrumentEntry>> instruments,
+            Map<OctaveDefinition, InstrumentEntry> defaultInstrument) {
         synchronized (s_mutex) {
             s_instruments.clear();
-            for (Map.Entry<Integer, HashMap<OctaveDefinition, InstrumentEntry>> entrySet : instruments.entrySet()) {
+            for (Map.Entry<Integer, Map<OctaveDefinition, InstrumentEntry>> entrySet : instruments.entrySet()) {
                 s_instruments.put(entrySet.getKey(), new Instrument(entrySet.getValue()));
             }
 
@@ -162,10 +153,10 @@ public class InstrumentMap {
     /**
      * Set the drum map
      *
-     * @param drums
-     * @param defaultDrum
+     * @param drums The drum instruments in the drum map
+     * @param defaultDrum The default drum instrument
      */
-    public static void set(HashMap<Integer, InstrumentEntry> drums, InstrumentEntry defaultDrum) {
+    public static void set(Map<Integer, InstrumentEntry> drums, InstrumentEntry defaultDrum) {
         synchronized (s_mutex) {
             s_drumMap.clear();
             for (Map.Entry<Integer, InstrumentEntry> entry : drums.entrySet())

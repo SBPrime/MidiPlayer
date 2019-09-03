@@ -50,7 +50,7 @@ import org.primesoft.midiplayer.utils.InOutParam;
  */
 class TrackEntry {
 
-    private long m_milis;    
+    private long m_millis;
     
     private final NoteEntry m_note;
 
@@ -58,19 +58,19 @@ class TrackEntry {
         return m_note;
     }
     
-    public long getMilis() {
-        return m_milis;
+    public long getMillis() {
+        return m_millis;
     }
 
-    public void setMilis(long milis) {
-        m_milis = milis;
+    public void setMillis(long milis) {
+        m_millis = milis;
     }
     
     public NoteEntry getEntry() {
         return m_note;
     }
 
-    public TrackEntry(long milis, InstrumentEntry instrument, float volume) {
+    public TrackEntry(long millis, InstrumentEntry instrument, float volume) {
         float scale;
 
         final String instrumentPatch;
@@ -82,14 +82,14 @@ class TrackEntry {
             scale = 0.0f;
             instrumentPatch = null;
         }
-        
-        m_milis = milis;
+
+        m_millis = millis;
         final float vv = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
     
         m_note = new NoteEntry(instrumentPatch, 1.0f, vv);
     }
     
-    public TrackEntry(long milis, Instrument instrument, int octave, int note, float volume) {
+    public TrackEntry(long millis, Instrument instrument, int octave, int note, float volume) {
         float scale;
 
         InstrumentEntry iEntry;
@@ -112,8 +112,8 @@ class TrackEntry {
             scale = 0.0f;
             instrumentPatch = null;
         }
-        
-        m_milis = milis;
+
+        m_millis = millis;
 
         final float frq = (float) Math.pow(2, (note + 12 * (octave % 2) - 12.0) / 12.0);
         final float vv = Math.max(0, Math.min(1, volume * scale)) * 3.0f;
@@ -124,7 +124,7 @@ class TrackEntry {
     @Override
     public int hashCode() {
         return (m_note != null ? m_note.hashCode() : 0) ^
-                ((Long)m_milis).hashCode();
+                ((Long)m_millis).hashCode();
     }
 
     @Override
@@ -135,7 +135,7 @@ class TrackEntry {
             return false;
         }
         
-        return m_milis == other.m_milis &&
+        return m_millis == other.m_millis &&
                 ((m_note == null && other.m_note == null) || 
                  (m_note!=null && m_note.equals(other.m_note)));
     }

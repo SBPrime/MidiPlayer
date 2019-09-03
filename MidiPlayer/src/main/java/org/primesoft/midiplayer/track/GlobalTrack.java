@@ -40,10 +40,11 @@
  */
 package org.primesoft.midiplayer.track;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
+
+import java.util.Collection;
 
 /**
  * Global music track - music played by this track type
@@ -57,9 +58,8 @@ public class GlobalTrack extends BaseTrack {
     private final JavaPlugin m_plugin;
     
     @Override
-    protected Player[] getPlayers() {
-        //TODO: Optimize me!
-        return m_plugin.getServer().getOnlinePlayers().toArray(new Player[0]);
+    protected Collection<? extends Player> getPlayers() {
+        return m_plugin.getServer().getOnlinePlayers();
     }
 
     public GlobalTrack(JavaPlugin plugin, NoteFrame[] notes) {

@@ -45,16 +45,16 @@ package org.primesoft.midiplayer.utils;
  * to java functions
  *
  * @author SBPrime
- * @param <T>
+ * @param <T> The type of the parameter
  */
 public class InOutParam<T> {
 
     /**
-     * Initialize reference parame (in and out value)
+     * Initialize reference parameter (in and out value)
      *
-     * @param <T>
-     * @param value
-     * @return
+     * @param <T> The type of the parameter
+     * @param value The value of the parameter
+     * @return An instance for this parameter
      */
     public static <T> InOutParam<T> Ref(T value) {
         return new InOutParam<T>(value);
@@ -63,8 +63,8 @@ public class InOutParam<T> {
     /**
      * Initialize output param (out only)
      *
-     * @param <T>
-     * @return
+     * @param <T> The type of the parameter
+     * @return An instance for this parameter
      */
     public static <T> InOutParam<T> Out() {
         return new InOutParam<T>();
@@ -83,7 +83,7 @@ public class InOutParam<T> {
     /**
      * Create new instance of ref param
      *
-     * @param value
+     * @param value The value of the parameter
      */
     private InOutParam(T value) {
         m_value = value;
@@ -100,7 +100,7 @@ public class InOutParam<T> {
     /**
      * Get the parameter value
      *
-     * @return
+     * @return The value of the parameter
      */
     public T getValue() {
         if (m_isSet) {
@@ -118,7 +118,7 @@ public class InOutParam<T> {
     /**
      * Is the value set
      *
-     * @return
+     * @return Whether the parameter has a value or not
      */
     public boolean isSet() {
         return m_isSet;

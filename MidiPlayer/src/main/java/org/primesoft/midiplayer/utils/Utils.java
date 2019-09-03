@@ -51,9 +51,9 @@ public class Utils {
     /**
      * Try to parse a string
      *
-     * @param s
-     * @param result
-     * @return
+     * @param s The string to be parsed as an integer
+     * @param result The parsed Integer
+     * @return Whether the string could be parsed as an integer or not
      */
     public static boolean TryParseInteger(String s, InOutParam<Integer> result) {
         if (s == null || result == null) {
@@ -72,10 +72,10 @@ public class Utils {
     /**
      * Do the set contain any of the elements
      *
-     * @param <T>
-     * @param keySet
-     * @param values
-     * @return
+     * @param <T> The type of the elements in the set
+     * @param keySet The set to check
+     * @param values The values that we want to check
+     * @return Whether any of the values are contained in the set or not
      */
     public static <T> boolean containsAny(Set<T> keySet, T[] values) {
         if (keySet == null || values == null) {

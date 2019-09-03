@@ -40,7 +40,6 @@
  */
 package org.primesoft.midiplayer;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Server;
@@ -72,25 +71,26 @@ public class MidiPlayerMain extends JavaPlugin {
     /**
      * Send message to the log
      *
-     * @param msg
+     * @param lvl The level of the error
+     * @param msg Message to log
      */
-    public static void log(String msg) {
+    public static void log(Level lvl, String msg) {
         if (s_log == null || msg == null || s_prefix == null) {
             return;
         }
 
-        s_log.log(Level.INFO, String.format(s_logFormat, s_prefix, msg));
+        s_log.log(lvl, String.format(s_logFormat, s_prefix, msg));
     }
 
     /**
      * Sent message directly to player
      *
-     * @param player
-     * @param msg
+     * @param player Player who is going to receive the message
+     * @param msg Message to send to the player
      */
     public static void say(Player player, String msg) {
         if (player == null) {
-            log(msg);
+            log(Level.INFO, msg);
         } else {
             player.sendRawMessage(msg);
         }
@@ -99,7 +99,7 @@ public class MidiPlayerMain extends JavaPlugin {
     /**
      * The instance of the class
      *
-     * @return
+     * @return This instance of the plugin
      */
     public static MidiPlayerMain getInstance() {
         return s_instance;
@@ -124,7 +124,7 @@ public class MidiPlayerMain extends JavaPlugin {
     
     /**
      * Gets the music player
-     * @return 
+     * @return  The MusicPlayer instance
      */
     public MusicPlayer getMusicPlayer() {
         return m_musicPlayer;
@@ -147,7 +147,7 @@ public class MidiPlayerMain extends JavaPlugin {
         InitializeCommands();
                 
         if (!m_reloadCommandHandler.ReloadConfig(null)) {
-            log("Error loading config");
+            log(Level.WARNING, "Error loading config");
             return;
         }
 
@@ -157,7 +157,6 @@ public class MidiPlayerMain extends JavaPlugin {
     
     /**
      * Initialize the commands
-     * @return 
      */
     private void InitializeCommands() {
         m_reloadCommandHandler = new ReloadCommand(this);
@@ -167,14 +166,19 @@ public class MidiPlayerMain extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents( playCommandHandler, this);
 
-        PluginCommand commandPlayGlobal = getCommand("playglobalmidi");
-        commandPlayGlobal.setExecutor(playGlobalCommandHandler);                
-        
-        PluginCommand commandReload = getCommand("mpreload");
-        commandReload.setExecutor(m_reloadCommandHandler);
-        
-        PluginCommand commandPlay = getCommand("playmidi");
-        commandPlay.setExecutor( playCommandHandler);
+        try {
+            PluginCommand commandPlayGlobal = getCommand("playglobalmidi");
+            commandPlayGlobal.setExecutor(playGlobalCommandHandler);
+
+            PluginCommand commandReload = getCommand("mpreload");
+            commandReload.setExecutor(m_reloadCommandHandler);
+
+            PluginCommand commandPlay = getCommand("playmidi");
+            commandPlay.setExecutor(playCommandHandler);
+        }
+        catch (NullPointerException ex) {
+            log(Level.WARNING, "Error initializing commands");
+        }
     }
 
     @Override

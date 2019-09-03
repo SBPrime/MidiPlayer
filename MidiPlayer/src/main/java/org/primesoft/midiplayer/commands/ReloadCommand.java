@@ -41,6 +41,8 @@
 package org.primesoft.midiplayer.commands;
 
 import java.io.File;
+import java.util.logging.Level;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -82,10 +84,10 @@ public class ReloadCommand extends BaseCommand {
         }
 
         if (ConfigProvider.getCheckUpdate()) {
-            log(VersionChecker.CheckVersion(m_pluginMain.getVersion()));
+            log(Level.INFO, VersionChecker.CheckVersion(m_pluginMain.getVersion()));
         }
         if (!ConfigProvider.isConfigUpdated()) {
-            log("Please update your config file!");
+            log(Level.INFO, "Please update your config file!");
         }
 
         if (!ReloadInstrumentMap(player)) {

@@ -43,6 +43,9 @@ package org.primesoft.midiplayer.configuration.migration;
 import org.primesoft.midiplayer.configuration.BaseConfigurationUpdater;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.logging.Level;
+
 import static org.primesoft.midiplayer.MidiPlayerMain.log;
 
 
@@ -53,7 +56,7 @@ import static org.primesoft.midiplayer.MidiPlayerMain.log;
 public class ConfigUpdater_v1_v2 extends BaseConfigurationUpdater {
     @Override
     public int updateConfig(Configuration config) {
-        log("Updating configuration v1 --> v2");
+        log(Level.INFO, "Updating configuration v1 --> v2");
 
         ConfigurationSection mainSection = config.getConfigurationSection("awe");
         if (mainSection == null) {

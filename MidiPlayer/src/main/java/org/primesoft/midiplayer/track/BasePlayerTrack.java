@@ -40,7 +40,10 @@
  */
 package org.primesoft.midiplayer.track;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
+
 import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
@@ -50,12 +53,12 @@ import org.primesoft.midiplayer.midiparser.NoteFrame;
  */
 public abstract class BasePlayerTrack extends BaseTrack {
 
-    private final HashSet<Player> m_players;
+    private final Set<Player> m_players;
 
     @Override
-    protected Player[] getPlayers() {
+    protected Collection<? extends Player> getPlayers() {
         synchronized (m_players) {
-            return m_players.toArray(new Player[0]);
+            return m_players;
         }
     }
 
@@ -87,7 +90,7 @@ public abstract class BasePlayerTrack extends BaseTrack {
         if (initialPlayers != null) {
             synchronized (m_players) {
                 for (Player p : initialPlayers) {
-                    if (p != null && !m_players.contains(p)) {
+                    if (p != null) {
                         m_players.add(p);
                     }
                 }
@@ -98,42 +101,30 @@ public abstract class BasePlayerTrack extends BaseTrack {
     
     /**
      * Add player listening to track
-     * @param player
-     * @return 
+     * @param player The player to be added to the listening list
+     * @return Whether the player could be added or not
      */
     public boolean addPlayer(Player player) {
         if (player == null || !player.isOnline()) {
             return false;
         }
         synchronized (m_players) {
-            if (m_players.contains(player)) {
-                return false;
-            }
-            
-            m_players.add(player);
+            return m_players.add(player);
         }
-        
-        return true;
     }
     
     
     /**
      * Remove player listening to track
-     * @param player
-     * @return 
+     * @param player The player to be removed from the listeining list
+     * @return Whether the player could be removed or not
      */
     public boolean removePlayer(Player player) {
         if (player == null || !player.isOnline()) {
             return false;
         }
         synchronized (m_players) {
-            if (!m_players.contains(player)) {
-                return false;
-            }
-            
-            m_players.remove(player);
+            return m_players.remove(player);
         }
-        
-        return true;
     }
 }

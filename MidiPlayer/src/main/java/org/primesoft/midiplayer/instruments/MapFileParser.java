@@ -49,6 +49,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+
 import org.primesoft.midiplayer.MidiPlayerMain;
 import org.primesoft.midiplayer.utils.InOutParam;
 import org.primesoft.midiplayer.utils.Utils;
@@ -68,8 +71,8 @@ public class MapFileParser {
     /**
      * Load the map file from file
      *
-     * @param instrumentMap
-     * @return
+     * @param instrumentMap The file containing the Instrument Map
+     * @return Whether the map load was successful or not
      */
     public static boolean loadMap(File instrumentMap) {
         BufferedReader instrumentFile = null;
@@ -78,7 +81,7 @@ public class MapFileParser {
             instrumentFile = new BufferedReader(new FileReader(instrumentMap));
             return loadMap(instrumentFile);
         } catch (IOException ex) {
-            MidiPlayerMain.log("Error reading file.");
+            MidiPlayerMain.log(Level.WARNING, "Error reading file.");
             return false;
         } finally {
             if (instrumentFile != null) {
@@ -95,8 +98,8 @@ public class MapFileParser {
     /**
      * Load the map file from file
      *
-     * @param drumMap
-     * @return
+     * @param drumMap The file containing the Drum Map
+     * @return Whether the drum map load was successful or not
      */
     public static boolean loadDrumMap(File drumMap) {
         BufferedReader drumFile = null;
@@ -105,7 +108,7 @@ public class MapFileParser {
             drumFile = new BufferedReader(new FileReader(drumMap));
             return loadDrumMap(drumFile);
         } catch (IOException ex) {
-            MidiPlayerMain.log("Error reading file.");
+            MidiPlayerMain.log(Level.WARNING, "Error reading file.");
             return false;
         } finally {
             if (drumFile != null) {
@@ -121,7 +124,7 @@ public class MapFileParser {
     /**
      * Load instrument mapping from default resource
      *
-     * @return
+     * @return Whether the map load was successful or not
      */
     public static boolean loadDefaultMap() {
         BufferedReader instrumentFile = null;
@@ -133,7 +136,7 @@ public class MapFileParser {
             instrumentFile = new BufferedReader(new InputStreamReader(isInstrument));
             return loadMap(instrumentFile);
         } catch (IOException ex) {
-            MidiPlayerMain.log("Error reading file.");
+            MidiPlayerMain.log(Level.WARNING, "Error reading file.");
             return false;
         } finally {
             if (instrumentFile != null) {
@@ -150,7 +153,7 @@ public class MapFileParser {
         /**
      * Load drum mapping from default resource
      *
-     * @return
+     * @return Whether the drum map load was successful or not
      */
     public static boolean loadDefaultDrumMap() {
         BufferedReader drumFile = null;
@@ -162,7 +165,7 @@ public class MapFileParser {
             drumFile = new BufferedReader(new InputStreamReader(isDrum));
             return loadDrumMap(drumFile);
         } catch (IOException ex) {
-            MidiPlayerMain.log("Error reading file.");
+            MidiPlayerMain.log(Level.WARNING, "Error reading file.");
             return false;
         } finally {
             if (drumFile != null) {
@@ -178,24 +181,24 @@ public class MapFileParser {
     /**
      * Load and parse the map file
      *
-     * @param instrumentFile
-     * @return
-     * @throws IOException
+     * @param instrumentFile The buffer containing the Instrument Map
+     * @return Whether the map load was successful or not
+     * @throws IOException When the buffer gives an IOException
      */
     private static boolean loadMap(BufferedReader instrumentFile) throws IOException {
-        final HashMap<OctaveDefinition, InstrumentEntry> defaultInstruments = new HashMap<OctaveDefinition, InstrumentEntry>();
-        final HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments
-                = new HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>>();
+        final Map<OctaveDefinition, InstrumentEntry> defaultInstruments = new HashMap<OctaveDefinition, InstrumentEntry>();
+        final Map<Integer, Map<OctaveDefinition, InstrumentEntry>> instruments
+                = new HashMap<Integer, Map<OctaveDefinition, InstrumentEntry>>();
 
         parseInstrumentMap(instrumentFile, defaultInstruments, instruments);
 
         if (defaultInstruments.isEmpty()) {
-            MidiPlayerMain.log("No default instrument.");
+            MidiPlayerMain.log(Level.WARNING, "No default instrument.");
             return false;
         }
 
         if (instruments.isEmpty()) {
-            MidiPlayerMain.log("No instruments defined.");
+            MidiPlayerMain.log(Level.WARNING, "No instruments defined.");
             return false;
         }
 
@@ -206,11 +209,11 @@ public class MapFileParser {
     
     
     /**
-     * Load and parse the map file
+     * Load and parse the drum map file
      *
-     * @param instrumentFile
-     * @return
-     * @throws IOException
+     * @param drumFile The buffer containing the Drum Map
+     * @return Whether the drum map load was successful or not
+     * @throws IOException When the buffer gives an IOException
      */
     private static boolean loadDrumMap(BufferedReader drumFile) throws IOException {
         final InOutParam<InstrumentEntry> defaultDrum = InOutParam.Out();
@@ -219,11 +222,11 @@ public class MapFileParser {
         parseDrumMap(drumFile, defaultDrum, drums);
 
         if (!defaultDrum.isSet()) {
-            MidiPlayerMain.log("Warning: No default drum.");
+            MidiPlayerMain.log(Level.WARNING, "No default drum.");
         }
 
         if (drums.isEmpty()) {
-            MidiPlayerMain.log("Warning: No drums defined.");
+            MidiPlayerMain.log(Level.WARNING, "No drums defined.");
         }
 
         InstrumentMap.set(drums, defaultDrum.isSet() ? defaultDrum.getValue() : null);
@@ -234,14 +237,14 @@ public class MapFileParser {
     /**
      * Parse the instrument map
      *
-     * @param instrumentFile
-     * @param defaultInstrument
-     * @param instruments
-     * @throws IOException
+     * @param instrumentFile The buffer containing the Instrument Map
+     * @param defaultInstrument The default instrument
+     * @param instruments The instrument map
+     * @throws IOException When the buffer gives an IOException
      */
     private static void parseInstrumentMap(BufferedReader instrumentFile,
-            final HashMap<OctaveDefinition, InstrumentEntry> defaultInstrument,
-            final HashMap<Integer, HashMap<OctaveDefinition, InstrumentEntry>> instruments) throws IOException {
+            final Map<OctaveDefinition, InstrumentEntry> defaultInstrument,
+            final Map<Integer, Map<OctaveDefinition, InstrumentEntry>> instruments) throws IOException {
         String line;
         while ((line = instrumentFile.readLine()) != null) {
             String cLine = line.trim().replace("\t", " ");
@@ -284,17 +287,17 @@ public class MapFileParser {
             }
 
             if (hasError) {
-                MidiPlayerMain.log("Invalid instrument mapping line: " + line);
+                MidiPlayerMain.log(Level.WARNING, "Invalid instrument mapping line: " + line);
             } else if (isDefault && Utils.containsAny(defaultInstrument.keySet(), octaves)) {
-                MidiPlayerMain.log("Duplicate default instrument entry: " + line);
+                MidiPlayerMain.log(Level.WARNING, "Duplicate default instrument entry: " + line);
             } else if (!isDefault && instruments.containsKey(id.getValue())
                     && Utils.containsAny(instruments.get(id.getValue()).keySet(), octaves)) {
-                MidiPlayerMain.log("Duplicate instrument entry: " + line);
+                MidiPlayerMain.log(Level.WARNING, "Duplicate instrument entry: " + line);
 
             } else {
                 InstrumentEntry i = new InstrumentEntry(patch, volume.getValue() / 100.0f);
 
-                HashMap<OctaveDefinition, InstrumentEntry> hash;
+                Map<OctaveDefinition, InstrumentEntry> hash;
                 if (isDefault) {
                     hash = defaultInstrument;
                 } else {
@@ -317,9 +320,10 @@ public class MapFileParser {
     /**
      * Parse the drum map
      *
-     * @param drumFile
-     * @param defaultDrum
-     * @param drums
+     * @param drumFile The buffer containing the Drum Map
+     * @param defaultDrum The default drum
+     * @param drums The drums map
+     * @throws IOException When the buffer gives an IOException
      */
     private static void parseDrumMap(BufferedReader drumFile,
             InOutParam<InstrumentEntry> defaultDrum,
@@ -364,11 +368,11 @@ public class MapFileParser {
             }
 
             if (hasError) {
-                MidiPlayerMain.log("Invalid drum mapping line: " + line);
+                MidiPlayerMain.log(Level.WARNING, "Invalid drum mapping line: " + line);
             } else if (isDefault && defaultDrum.isSet()) {
-                MidiPlayerMain.log("Duplicate default drum entry: " + line);
+                MidiPlayerMain.log(Level.WARNING, "Duplicate default drum entry: " + line);
             } else if (!isDefault && drums.containsKey(id.getValue())) {
-                MidiPlayerMain.log("Duplicate drum entry: " + line);
+                MidiPlayerMain.log(Level.WARNING, "Duplicate drum entry: " + line);
             } else {
                 InstrumentEntry i = new InstrumentEntry(patch, volume.getValue() / 100.0f);
 
@@ -384,8 +388,8 @@ public class MapFileParser {
     /**
      * Split line and ignore comments
      *
-     * @param line
-     * @return
+     * @param line The line to be split
+     * @return An array containing the split line
      */
     private static String[] split(String line) {
         if (line == null) {
@@ -410,8 +414,8 @@ public class MapFileParser {
     /**
      * Parse the octaves entries
      *
-     * @param parts
-     * @return
+     * @param parts The entries to parse
+     * @return An array containing the definition of the octaves
      */
     private static OctaveDefinition[] parseOctaves(String[] parts) {
         List<OctaveDefinition> result = new ArrayList<OctaveDefinition>();

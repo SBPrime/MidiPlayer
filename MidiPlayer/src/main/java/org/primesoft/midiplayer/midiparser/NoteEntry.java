@@ -87,15 +87,16 @@ public class NoteEntry {
 
     @Override
     public boolean equals(Object obj) {
-        NoteEntry other = obj instanceof NoteEntry ? (NoteEntry)obj : null;
-        if (other == null) {
-            return false;
+        if (obj instanceof NoteEntry) {
+            NoteEntry other = (NoteEntry) obj;
+
+            return m_frq == other.m_frq &&
+                    //m_volume == other.m_volume &&
+                    ((m_instrumentPatch == null && other.m_instrumentPatch == null) ||
+                            (m_instrumentPatch != null && m_instrumentPatch.equals(other.m_instrumentPatch)));
         }
-        
-        return m_frq == other.m_frq &&
-                //m_volume == other.m_volume &&
-                ((m_instrumentPatch == null && other.m_instrumentPatch == null) ||
-                 (m_instrumentPatch != null && m_instrumentPatch.equals(other.m_instrumentPatch)));
+
+        return false;
     }
     
     

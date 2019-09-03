@@ -41,12 +41,15 @@
 package org.primesoft.midiplayer.commands;
 
 import java.io.File;
+import java.util.logging.Level;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.primesoft.midiplayer.MusicPlayer;
 import static org.primesoft.midiplayer.MidiPlayerMain.say;
+import static org.primesoft.midiplayer.MidiPlayerMain.log;
 import org.primesoft.midiplayer.midiparser.MidiParser;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 import org.primesoft.midiplayer.midiparser.NoteTrack;
@@ -80,10 +83,12 @@ public class GlobalPlayMidiCommand extends BaseCommand {
         Player player = cs instanceof Player ? (Player) cs : null;
         NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder(), fileName));
         if (noteTrack == null) {
-            say(player, "Error loading midi track");
+            say(player, "Error loading " + fileName + " midi track");
+            log(Level.WARNING, "Error loading " + fileName + " midi track");
             return true;
         } else if (noteTrack.isError()) {
-            say(player, "Error loading midi track: " + noteTrack.getMessage());
+            say(player, "Error loading " + fileName + " midi track: " + noteTrack.getMessage());
+            log(Level.WARNING, "Error loading " + fileName + " midi track: " + noteTrack.getMessage());
             return true;
         }
 

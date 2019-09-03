@@ -42,6 +42,7 @@ package org.primesoft.midiplayer.commands;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -64,7 +65,7 @@ import org.primesoft.midiplayer.track.PlayerTrack;
 public class PlayMidiCommand extends BaseCommand implements Listener {
 
     private final MusicPlayer m_player;
-    private final HashMap<UUID, PlayerTrack> m_tracks;
+    private final Map<UUID, PlayerTrack> m_tracks;
     private final JavaPlugin m_plugin;
 
     public PlayMidiCommand(JavaPlugin plugin, MusicPlayer player) {

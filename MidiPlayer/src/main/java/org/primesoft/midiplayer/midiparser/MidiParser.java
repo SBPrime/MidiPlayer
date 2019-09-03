@@ -44,11 +44,7 @@ import org.primesoft.midiplayer.instruments.Instrument;
 import org.primesoft.midiplayer.instruments.InstrumentMap;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -70,8 +66,8 @@ public class MidiParser {
     /**
      * Load notes from MIDI file
      *
-     * @param midiFile
-     * @return
+     * @param midiFile The file to read
+     * @return The NoteTrack obtained from the file, or a NoteTrack with an exception message if the File failed to be read
      */
     public static NoteTrack loadFile(File midiFile) {
         try {
@@ -86,14 +82,14 @@ public class MidiParser {
     /**
      * Parse the midi file
      *
-     * @param midiFile
-     * @return
-     * @throws IOException
-     * @throws InvalidMidiDataException
+     * @param midiFile The file to read
+     * @return The parsed NoteTrack, null if the file can't be read
+     * @throws IOException When failed to read the file
+     * @throws InvalidMidiDataException When the file contains wrong midi data
      */
     private static NoteTrack parseFile(File midiFile) throws IOException, InvalidMidiDataException {
         if (midiFile == null || !midiFile.canRead()) {
-            return new NoteTrack("Unable to read the MIDI file");
+            return null;
         }
 
         Sequence sequence = MidiSystem.getSequence(midiFile);
@@ -109,8 +105,8 @@ public class MidiParser {
 
         List<TrackEntry> result = new ArrayList<TrackEntry>();
 
-        HashMap<Integer, Instrument> instruments = new HashMap<Integer, Instrument>();
-        HashMap<Integer, Integer> masterVolume = new HashMap<Integer, Integer>();
+        Map<Integer, Instrument> instruments = new HashMap<Integer, Instrument>();
+        Map<Integer, Integer> masterVolume = new HashMap<Integer, Integer>();
 
         for (Track track : sequence.getTracks()) {
             result.addAll(parseTrack(track, tempo, resolution,
@@ -125,16 +121,17 @@ public class MidiParser {
     /**
      * Parse midi track
      *
-     * @param track
-     * @param tempo
-     * @param resolution
-     * @param instruments
-     * @return
+     * @param track The track to be parsed
+     * @param tempo The tempo (speed) to be used
+     * @param resolution The resolution
+     * @param instruments The instruments used in this track
+     * @param masterVolume The volume of each instrument
+     * @return A list containing the TrackEntries to be played, one for each instrument
      */
     private static List<TrackEntry> parseTrack(Track track, InOutParam<Double> tempo,
             int resolution,
-            HashMap<Integer, Instrument> instruments,
-            HashMap<Integer, Integer> masterVolume) {
+            Map<Integer, Instrument> instruments,
+            Map<Integer, Integer> masterVolume) {
         double lTempo = tempo.getValue();
 
         List<TrackEntry> result = new ArrayList<TrackEntry>();
@@ -216,14 +213,14 @@ public class MidiParser {
     /**
      * Convert track entries to note entries. Convert to delta
      *
-     * @param notes
-     * @return
+     * @param notes The list of notes in Long/TrackEntry format
+     * @return The list of notes in NoteFrame format
      */
-    private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, HashSet<TrackEntry>>> notes) {
+    private static List<NoteFrame> convertToNoteFrames(List<Pair<Long, Set<TrackEntry>>> notes) {
         List<NoteFrame> result = new ArrayList<NoteFrame>();
 
         long last = notes.get(0).getX1();
-        for (Pair<Long, HashSet<TrackEntry>> entry : notes) {
+        for (Pair<Long, Set<TrackEntry>> entry : notes) {
             long milis = entry.getX1();
 
             result.add(new NoteFrame(milis - last, entry.getX2()));
@@ -237,11 +234,11 @@ public class MidiParser {
     /**
      * Get instrument assigned to channel
      *
-     * @param instruments instrument channel map
-     * @param channel
-     * @return
+     * @param instruments Instrument channel map
+     * @param channel The channel to use
+     * @return The assigned instrument
      */
-    private static Instrument getInstrument(HashMap<Integer, Instrument> instruments, int channel) {
+    private static Instrument getInstrument(Map<Integer, Instrument> instruments, int channel) {
         if (instruments == null) {
             return null;
         }
@@ -257,10 +254,10 @@ public class MidiParser {
      * Assign instrument to channel
      *
      * @param instruments Instrument channel map
-     * @param channel
-     * @param instrument
+     * @param channel The channel to use
+     * @param instrument The instrument to assign to the selected channel
      */
-    private static void setInstrument(HashMap<Integer, Instrument> instruments, int channel, Instrument instrument) {
+    private static void setInstrument(Map<Integer, Instrument> instruments, int channel, Instrument instrument) {
         if (instruments == null) {
             return;
         }
@@ -275,48 +272,44 @@ public class MidiParser {
     /**
      * Aggregate note entries based on time
      *
-     * @param notes
-     * @return
+     * @param notes The notes to aggregate
+     * @return The notes aggregated with time entries in milliseconds
      */
-    private static List<Pair<Long, HashSet<TrackEntry>>> aggregate(List<TrackEntry> notes) {
-        HashMap<Long, HashSet<TrackEntry>> tmp = new HashMap<Long, HashSet<TrackEntry>>();
+    private static List<Pair<Long, Set<TrackEntry>>> aggregate(List<TrackEntry> notes) {
+        Map<Long, Set<TrackEntry>> tmp = new HashMap<Long, Set<TrackEntry>>();
 
         for (TrackEntry entry : notes) {
-            final long milis = entry.getMilis();
+            final long millis = entry.getMillis();
 
-            final HashSet<TrackEntry> list;
-            if (tmp.containsKey(milis)) {
-                list = tmp.get(milis);
+            final Set<TrackEntry> set;
+            if (tmp.containsKey(millis)) {
+                set = tmp.get(millis);
             } else {
-                list = new HashSet<TrackEntry>();
-                tmp.put(milis, list);
+                set = new HashSet<TrackEntry>();
+                tmp.put(millis, set);
             }
 
-            if (!list.contains(entry)) {
-                list.add(entry);
-            }
+            set.add(entry);
         }
 
         List<Long> keys = new ArrayList<Long>(tmp.keySet());
         Collections.sort(keys);
 
-        List<Pair<Long, HashSet<TrackEntry>>> result = new ArrayList<Pair<Long, HashSet<TrackEntry>>>();
+        List<Pair<Long, Set<TrackEntry>>> result = new ArrayList<Pair<Long, Set<TrackEntry>>>();
         for (Long time : keys) {
-            result.add(new Pair<Long, HashSet<TrackEntry>>(time, tmp.get(time)));
+            result.add(new Pair<Long, Set<TrackEntry>>(time, tmp.get(time)));
         }
         return result;
     }
 
-    private static void setVolume(HashMap<Integer, Integer> masterVolume, int channel, int volume) {
-        if (masterVolume.containsKey(channel)) {
-            masterVolume.remove(channel);
-        }
+    private static void setVolume(Map<Integer, Integer> masterVolume, int channel, int volume) {
+        masterVolume.remove(channel); // Remove method already checks if channel is in the map, no need to use contains
 
         masterVolume.put(channel, volume);
     }
 
-    private static float getVolume(HashMap<Integer, Integer> masterVolume, int channel, int velocity) {
-        int volume = masterVolume.containsKey(channel) ? masterVolume.get(channel) : 127;
+    private static float getVolume(Map<Integer, Integer> masterVolume, int channel, int velocity) {
+        int volume = masterVolume.getOrDefault(channel, 127);
         return volume / 127.0f * velocity / 127.0f;
     }
 

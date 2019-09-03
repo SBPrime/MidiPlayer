@@ -43,6 +43,8 @@ package org.primesoft.midiplayer.configuration;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+
 import org.bukkit.SoundCategory;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationOptions;
@@ -80,7 +82,7 @@ public class ConfigProvider {
     /**
      * Plugin root folder
      *
-     * @return
+     * @return The root folder of this plugin
      */
     public static File getPluginFolder() {
         return m_pluginFolder;
@@ -107,7 +109,7 @@ public class ConfigProvider {
     /**
      * Is the configuration up to date
      *
-     * @return
+     * @return Whether the configuration is up to date or not
      */
     public static boolean isConfigUpdated() {
         return m_isConfigUpdate;
@@ -164,12 +166,12 @@ public class ConfigProvider {
                 plugin.saveConfig();
 
                 int newVersion = mainSection.getInt("version", 0);
-                log(String.format("Configuration updated from %1$s to %2$s.", configVersion, newVersion));
+                log(Level.INFO, String.format("Configuration updated from %1$s to %2$s.", configVersion, newVersion));
                 if (newVersion != ConfigurationUpdater.CONFIG_VERSION) {
-                    log(String.format("Unable to update config to the required version (%1$s).", ConfigurationUpdater.CONFIG_VERSION));
+                    log(Level.INFO, String.format("Unable to update config to the required version (%1$s).", ConfigurationUpdater.CONFIG_VERSION));
                 }
             } else {
-                log(String.format("Unable to update config to the required version (%1$s).", ConfigurationUpdater.CONFIG_VERSION));
+                log(Level.INFO, String.format("Unable to update config to the required version (%1$s).", ConfigurationUpdater.CONFIG_VERSION));
             }
         }
 

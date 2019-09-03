@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.primesoft</groupId>
     <artifactId>MidiPlayer</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <name>MidiPlayer</name>
     <description>A plugin that allows you to play custom music on your server</description>
     <build>

@@ -45,6 +45,8 @@ import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.configuration.ConfigProvider;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
+import java.util.Collection;
+
 /**
  * Basic music track for playing notes
  * @author prime
@@ -120,7 +122,7 @@ public abstract class BaseTrack {
      *
      * @return
      */
-    protected abstract Player[] getPlayers();
+    protected abstract Collection<? extends Player> getPlayers();
 
     /**
      * Get the sound global location 
@@ -139,7 +141,7 @@ public abstract class BaseTrack {
     public void play(long delta) {
         m_wait -= delta;
 
-        final Player[] players = getPlayers();
+        final Collection<? extends Player> players = getPlayers();
         final Location location = m_perPlayerLocation ? null : getLocation();
 
         while (m_wait <= HALF_TICK && m_nextNote != null) {

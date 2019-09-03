@@ -43,6 +43,8 @@ package org.primesoft.midiplayer;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.logging.Level;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -81,7 +83,7 @@ public class VersionChecker {
 
             return sb.toString();
         } catch (Exception e) {
-            MidiPlayerMain.log("Error downloading file: " + e.getMessage());
+            MidiPlayerMain.log(Level.WARNING, "Error downloading file: " + e.getMessage());
             return null;
         }
     }
@@ -90,7 +92,7 @@ public class VersionChecker {
      * Check if the version is up to date
      *
      * @param version Current plugin version
-     * @return Version comperation answer
+     * @return Version comparison answer
      */
     public static String CheckVersion(String version) {
         String content = downloadPage(s_versionUrl);
