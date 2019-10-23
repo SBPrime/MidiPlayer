@@ -41,8 +41,10 @@
 package org.primesoft.midiplayer.track;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
@@ -58,7 +60,7 @@ public abstract class BasePlayerTrack extends BaseTrack {
     @Override
     protected Collection<? extends Player> getPlayers() {
         synchronized (m_players) {
-            return m_players;
+            return new HashSet<>(m_players);
         }
     }
 

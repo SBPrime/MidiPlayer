@@ -189,9 +189,9 @@ public class ConfigProvider {
 
     private static SoundCategory parseSoundCategory(String categoryName) {
         if (categoryName != null) {
-            categoryName = categoryName.trim().toUpperCase();
+            categoryName = categoryName.trim();
             for (SoundCategory c : SoundCategory.values()) {
-                if (categoryName.equals(c.name())) {
+                if (categoryName.equalsIgnoreCase(c.name())) {
                     return c;
                 }
             }

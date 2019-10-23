@@ -281,13 +281,7 @@ public class MidiParser {
         for (TrackEntry entry : notes) {
             final long millis = entry.getMillis();
 
-            final Set<TrackEntry> set;
-            if (tmp.containsKey(millis)) {
-                set = tmp.get(millis);
-            } else {
-                set = new HashSet<TrackEntry>();
-                tmp.put(millis, set);
-            }
+            final Set<TrackEntry> set = tmp.computeIfAbsent(millis, k -> new HashSet<TrackEntry>());
 
             set.add(entry);
         }

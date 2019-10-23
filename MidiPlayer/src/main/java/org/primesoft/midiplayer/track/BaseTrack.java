@@ -120,21 +120,21 @@ public abstract class BaseTrack {
     /**
      * Get list of players that should hear the music
      *
-     * @return
+     * @return The list of players
      */
     protected abstract Collection<? extends Player> getPlayers();
 
     /**
      * Get the sound global location 
-     * (if null the get player location wil be used)
-     * @return
+     * (if null then get player location will be used)
+     * @return The location tu use for the sound
      */
     protected Location getLocation() { return null; }
     
     /**
      * Get the sound location
      * @param player The player to get the location for
-     * @return
+     * @return The location of the given player
      */
     protected Location getLocation(Player player)  { return null; }
 
@@ -167,7 +167,7 @@ public abstract class BaseTrack {
     /**
      * Is track finished
      *
-     * @return
+     * @return Whether the track has finished playing or not
      */
     public boolean isFinished() {
         return m_nextNote == null;
