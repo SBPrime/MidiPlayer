@@ -169,6 +169,7 @@ local.properties
 ## NetBeans
 #################
 
+**/nbproject/*
 **/nbproject/private/
 **/nbproject/Makefile-*.mk
 **/nbproject/Package-*.bash
@@ -248,3 +249,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+#############
+## Test
+#############
+midi-test/*

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.primesoft</groupId>
     <artifactId>MidiPlayer</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
     <name>MidiPlayer</name>
     <description>A plugin that allows you to play custom music on your server</description>
     <build>
@@ -31,6 +31,32 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>                    
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.json.simple</pattern>
+                                    <shadedPattern>org.primesoft.midiplayer.lib.org.json.simple</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.googlecode.json-simple:json-simple</include>
+                                </includes>
+                            </artifactSet>                            
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <repositories>
@@ -53,15 +79,14 @@
         <dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.13.2-R0.1-SNAPSHOT</version>
+           <version>1.15.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-            <classifier>javadoc</classifier>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

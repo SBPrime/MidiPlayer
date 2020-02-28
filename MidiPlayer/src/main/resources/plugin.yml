@@ -2,6 +2,7 @@ name: ${project.name}
 main: org.primesoft.midiplayer.MidiPlayerMain
 version: ${project.version}
 authors: [SBPrime]
+api-version: 1.13
 description: ${project.description}
 commands:
   mpreload:
@@ -22,7 +23,7 @@ permissions:
   musicplayer.*:
     description: Grants access to all MidiPlayer permissions
     default: op
-    children:      
+    children:
       midiplayer.admin.*: true
       midiplayer.playglobal: true
       midiplayer.play: true
@@ -32,7 +33,7 @@ permissions:
   midiplayer.admin.*:
     description: Grants access to all MidiPlayer admin permissions
     default: op
-    children:      
+    children:
       musicplayer.admin.reload: true
   midiplayer.admin.reload:
     description: Allows you to reload MidiPlayer config

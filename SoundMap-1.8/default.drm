@@ -1,0 +1,49 @@
+#Note | Sound patch | Base volume
+#D	note.bd		100%    #Default mapping
+35	note.snare	100%    #Acoustic Bass Drum
+36	note.snare	100%    #Bass Drum 1
+37	note.snare	100%    #Side Stick
+38	note.snare	100%    #Acoustic Snare
+39	note.snare	100%    #Hand Clap
+40	note.snare	100%    #Electric Snare
+41	note.snare	100%    #Low Floor Tom
+42	note.snare	100%    #Closed Hi Hat 
+43	note.snare	100%    #High Floor Tom
+44	note.snare	100%    #Pedal Hi-Hat
+45	note.snare	100%    #Low Tom 
+#46	note.bd		100%    #Open Hi-Hat
+47	note.snare	100%    #Low-Mid Tom
+48	note.snare	100%    #Hi-Mid Tom 
+#49	note.bd		100%    #Crash Cymbal 1
+50	note.snare	100%    #High Tom
+#51	note.bd		100%    #Ride Cymbal 1
+#52	note.bd		100%    #Chinese Cymbal 
+#53	note.bd		100%    #Ride Bell
+54	random.orb	100%    #Tambourine
+#55	note.bd		100%    #Splash Cymbal 
+56	note.hat	100%    #Cowbell
+#57	note.bd		100%    #Crash Cymbal 2 
+#58	note.bd		100%    #Vibraslap
+#59	note.bd		100%    #Ride Cymbal 2 
+60	note.hat	100%    #Hi Bongo 
+61	note.hat	100%    #Low Bongo 
+62	note.hat	100%    #Mute Hi Conga 
+63	note.snare	100%    #Open Hi Conga 
+64	note.bd		100%    #Low Conga 
+65	note.snare	100%    #High Timbale 
+66	note.snare	100%    #Low Timbale 
+67	random.orb	100%    #High Agogo 
+68	random.orb	100%    #Low Agogo 
+#69	note.bd		100%    #Cabasa
+#70	note.bd		100%    #Maracas
+#71	note.bd		100%    #Short Whistle 
+#72	note.bd		100%    #Long Whistle
+73	note.hat	100%    #Short Guiro 
+#74	note.bd		100%    #Long Guiro 
+75	note.hat	100%    #Claves
+76	note.hat	100%    #Hi Wood Block 
+77	note.hat	100%    #Low Wood Block 
+#78	note.bd		100%    #Mute Cuica 
+#79	note.bd		100%    #Open Cuica 
+80	random.orb	100%    #Mute Triangle 
+81	random.orb	100%    #Open Triangle 

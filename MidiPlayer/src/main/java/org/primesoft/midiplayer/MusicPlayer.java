@@ -74,7 +74,7 @@ public class MusicPlayer implements Runnable {
     public MusicPlayer(MidiPlayerMain plugin, BukkitScheduler scheduler) {
         m_lastEnter = System.currentTimeMillis();
         m_task = scheduler.runTaskTimer(plugin, this, 1, 1);
-        m_playingTracks = new ArrayList<BaseTrack>();
+        m_playingTracks = new ArrayList<>();
         m_isRunning = true;
     }
 
