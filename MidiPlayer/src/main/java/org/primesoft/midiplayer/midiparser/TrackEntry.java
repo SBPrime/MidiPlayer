@@ -48,7 +48,7 @@ import org.primesoft.midiplayer.utils.InOutParam;
  *
  * @author SBPrime
  */
-class TrackEntry {
+public class TrackEntry {
 
     private long m_millis;
     

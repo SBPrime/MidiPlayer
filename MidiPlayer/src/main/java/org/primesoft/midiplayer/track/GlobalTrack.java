@@ -44,30 +44,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
-import java.util.Collection;
-
 /**
  * Global music track - music played by this track type
  * is heard all over the server
  * @author SBPrime
  */
-public class GlobalTrack extends BaseTrack {
-    /**
-     * The plugin
-     */
-    private final JavaPlugin m_plugin;
-    
-    @Override
-    protected Collection<? extends Player> getPlayers() {
-        return m_plugin.getServer().getOnlinePlayers();
-    }
+public class GlobalTrack extends BasePlayerTrack {
 
     public GlobalTrack(JavaPlugin plugin, NoteFrame[] notes) {
         this(plugin, notes, false);
     }
     
     public GlobalTrack(JavaPlugin plugin, NoteFrame[] notes, boolean loop) {
-        super(notes, loop, true);
-        m_plugin = plugin;
+        super(plugin.getServer().getOnlinePlayers().toArray(new Player[0]), notes, loop, true);
     }
 }

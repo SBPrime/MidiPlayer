@@ -40,64 +40,60 @@
  */
 package org.primesoft.midiplayer.commands;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import org.primesoft.midiplayer.MidiPlayerMain;
+import org.primesoft.midiplayer.VersionChecker;
+import org.primesoft.midiplayer.configuration.ConfigProvider;
+import org.primesoft.midiplayer.instruments.MapFileParser;
+
 import java.io.File;
 import java.util.logging.Level;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.primesoft.midiplayer.configuration.ConfigProvider;
-import org.primesoft.midiplayer.MidiPlayerMain;
-import static org.primesoft.midiplayer.MidiPlayerMain.log;
-import org.primesoft.midiplayer.VersionChecker;
-import org.primesoft.midiplayer.instruments.MapFileParser;
 
 /**
  * Reload configuration command
  * @author SBPrime
  */
-public class ReloadCommand extends BaseCommand {
+public class ReloadCommand implements Command<CommandSourceStack> {
 
     private final MidiPlayerMain m_pluginMain;
 
-    public ReloadCommand(MidiPlayerMain pluginMain) {
+    public ReloadCommand(@NotNull MidiPlayerMain pluginMain) {
         m_pluginMain = pluginMain;
     }
 
     @Override
-    public boolean onCommand(CommandSender cs, Command cmnd, String name, String[] args) {
-        if (args != null && args.length > 0) {
-            return false;
-        }
-
-        Player player = (cs instanceof Player) ? (Player) cs : null;
-
+    public int run(CommandContext<CommandSourceStack> ctx) {
         m_pluginMain.reloadConfig();
-        ReloadConfig(player);
-        return true;
+        reloadConfig(ctx.getSource().getSender());
+        return SINGLE_SUCCESS;
     }
 
-    public boolean ReloadConfig(Player player) {
+    public boolean reloadConfig(CommandSender player) {
         if (!ConfigProvider.load(m_pluginMain)) {
             MidiPlayerMain.say(player, "Error loading config");
             return false;
         }
 
         if (ConfigProvider.getCheckUpdate()) {
-            log(Level.INFO, VersionChecker.CheckVersion(m_pluginMain.getVersion()));
+            MidiPlayerMain.log(Level.INFO, VersionChecker.CheckVersion(m_pluginMain.getVersion()));
         }
         if (!ConfigProvider.isConfigUpdated()) {
-            log(Level.INFO, "Please update your config file!");
+            MidiPlayerMain.log(Level.INFO, "Please update your config file!");
         }
 
-        if (!ReloadInstrumentMap(player)) {
+        if (!reloadInstrumentMap(player)) {
             return false;
         }
+        m_pluginMain.getGiveDiscCommand().reloadDiscYML(player);
         MidiPlayerMain.say(player, "Config loaded");
         return true;
     }
 
-    private boolean ReloadInstrumentMap(Player player) {
+    private boolean reloadInstrumentMap(CommandSender player) {
         String instrumentName = ConfigProvider.getInstrumentMapFile();
         String drumName = ConfigProvider.getDrumMapFile();
         File instrumentFile = new File(ConfigProvider.getPluginFolder(), instrumentName);

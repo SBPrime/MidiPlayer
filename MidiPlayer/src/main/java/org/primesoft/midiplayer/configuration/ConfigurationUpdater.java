@@ -40,11 +40,11 @@
  */
 package org.primesoft.midiplayer.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.configuration.Configuration;
 import org.primesoft.midiplayer.configuration.migration.ConfigUpdater_v1_v2;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The automatic configuration updater.

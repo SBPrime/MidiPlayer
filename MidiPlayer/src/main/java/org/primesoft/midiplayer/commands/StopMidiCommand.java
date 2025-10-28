@@ -40,25 +40,43 @@
  */
 package org.primesoft.midiplayer.commands;
 
-import java.util.ArrayList;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.primesoft.midiplayer.MusicPlayer;
+import org.primesoft.midiplayer.utils.CommandUtils;
+
 import java.util.List;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 
 /**
- *
- * @author prime
+ * Play midi command
+ * @author SBPrime
  */
-public abstract class BaseCommand implements CommandExecutor, TabCompleter {
-    @Override
-    public boolean onCommand(CommandSender cs, Command cmnd, String name, String[] args) {
-        return true;
+public class StopMidiCommand implements com.mojang.brigadier.Command<CommandSourceStack> {
+
+    private final MusicPlayer m_player;
+    private final JavaPlugin m_plugin;
+
+    public StopMidiCommand(@NotNull JavaPlugin plugin, @NotNull MusicPlayer player) {
+        m_plugin = plugin;
+        m_player = player;
     }
-    
+
     @Override
-    public List<String> onTabComplete(CommandSender cs, Command cmnd, String name, String[] args) {
-        return new ArrayList<String>();
+    public int run(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        List<Player> audience = CommandUtils.getPlayers(ctx, "targets", true);
+        if (audience == null)
+            return 0;
+        if (audience.isEmpty()) {
+            ctx.getSource().getSender().sendRichMessage("<red>No player was found");
+            return 0;
+        }
+
+        audience.forEach(player -> CommandUtils.stopPlayerTrack(m_player, player));
+
+        return SINGLE_SUCCESS;
     }
 }

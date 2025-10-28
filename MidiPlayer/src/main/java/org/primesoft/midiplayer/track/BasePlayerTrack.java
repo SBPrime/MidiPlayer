@@ -40,14 +40,12 @@
  */
 package org.primesoft.midiplayer.track;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is a basic track that holds a player list
@@ -58,7 +56,7 @@ public abstract class BasePlayerTrack extends BaseTrack {
     private final Set<Player> m_players;
 
     @Override
-    protected Collection<? extends Player> getPlayers() {
+    public Collection<? extends Player> getPlayers() {
         synchronized (m_players) {
             return new HashSet<>(m_players);
         }
@@ -118,7 +116,7 @@ public abstract class BasePlayerTrack extends BaseTrack {
     
     /**
      * Remove player listening to track
-     * @param player The player to be removed from the listeining list
+     * @param player The player to be removed from the listening list
      * @return Whether the player could be removed or not
      */
     public boolean removePlayer(Player player) {
@@ -127,6 +125,17 @@ public abstract class BasePlayerTrack extends BaseTrack {
         }
         synchronized (m_players) {
             return m_players.remove(player);
+        }
+    }
+
+
+    /**
+     * Returns the number of players listening to the track
+     * @return The number of players listening to the track
+     */
+    public int countPlayers() {
+        synchronized (m_players) {
+            return m_players.size();
         }
     }
 }

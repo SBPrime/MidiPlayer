@@ -40,9 +40,9 @@
  */
 package org.primesoft.midiplayer.instruments;
 
-import java.util.Map;
-
 import org.primesoft.midiplayer.utils.InOutParam;
+
+import java.util.Map;
 
 /**
  * Midi instrument

@@ -40,64 +40,46 @@
  */
 package org.primesoft.midiplayer.commands;
 
-import java.io.File;
-import java.util.logging.Level;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.primesoft.midiplayer.MusicPlayer;
-import static org.primesoft.midiplayer.MidiPlayerMain.say;
-import static org.primesoft.midiplayer.MidiPlayerMain.log;
-import org.primesoft.midiplayer.midiparser.MidiParser;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 import org.primesoft.midiplayer.midiparser.NoteTrack;
 import org.primesoft.midiplayer.track.GlobalTrack;
+import org.primesoft.midiplayer.utils.CommandUtils;
+
 
 /**
  * Play global midi music command
  * @author SBPrime
  */
-public class GlobalPlayMidiCommand extends BaseCommand {
+public class GlobalPlayMidiCommand implements Command<CommandSourceStack> {
 
     private final MusicPlayer m_player;
-    private GlobalTrack m_currentTrack;
     private final JavaPlugin m_plugin;
 
-    public GlobalPlayMidiCommand(JavaPlugin plugin, MusicPlayer player) {
+    public GlobalPlayMidiCommand(@NotNull JavaPlugin plugin, @NotNull MusicPlayer player) {
         m_plugin = plugin;
         m_player = player;
-        m_currentTrack = null;
     }
 
     @Override
-    public boolean onCommand(CommandSender cs, Command cmnd, String name, String[] args) {
-        m_player.removeTrack(m_currentTrack);
+    public int run(CommandContext<CommandSourceStack> ctx) {
+        boolean loop = CommandUtils.getArgumentOrDefault(ctx, "loop", Boolean.class, false);
 
-        String fileName = args != null && args.length > 0 ? args[0] : null;
-        if (fileName == null) {
-            return true;
-        }
-
-        boolean loop = args.length > 1 ? args[1].equalsIgnoreCase("true") : false;
-
-        Player player = cs instanceof Player ? (Player) cs : null;
-        NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder(), fileName));
-        if (noteTrack == null) {
-            say(player, "Error loading " + fileName + " midi track");
-            log(Level.WARNING, "Error loading " + fileName + " midi track");
-            return true;
-        } else if (noteTrack.isError()) {
-            say(player, "Error loading " + fileName + " midi track: " + noteTrack.getMessage());
-            log(Level.WARNING, "Error loading " + fileName + " midi track: " + noteTrack.getMessage());
-            return true;
-        }
+        NoteTrack noteTrack = CommandUtils.getNoteTrack(m_plugin, ctx, "song");
+        if (noteTrack == null)
+            return 0;
+        else if (noteTrack.isError())
+            return 0;
 
         final NoteFrame[] notes = noteTrack.getNotes();
-        m_currentTrack = new GlobalTrack(m_plugin, notes, loop);
-        m_player.playTrack(m_currentTrack);
+        GlobalTrack newTrack = new GlobalTrack(m_plugin, notes, loop);
+        CommandUtils.addGlobalTrack(m_player, newTrack);
 
-        return true;
+        return SINGLE_SUCCESS;
     }
 }

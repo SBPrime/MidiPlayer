@@ -40,9 +40,9 @@
  */
 package org.primesoft.midiplayer.configuration.migration;
 
-import org.primesoft.midiplayer.configuration.BaseConfigurationUpdater;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.primesoft.midiplayer.configuration.BaseConfigurationUpdater;
 
 import java.util.logging.Level;
 

@@ -45,7 +45,7 @@ import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
 /**
- * This is a global palayer track.
+ * This is a global player track.
  * Music played by this track is heard from specified location
  * for selected players
  * @author SBPrime
@@ -54,8 +54,8 @@ public class LocationTrack extends BasePlayerTrack {
     private Location m_location;
     
     @Override
-    protected Location getLocation() {
-        return m_location;
+    public Location getLocation() {
+        return m_location.clone();
     }
     
     public LocationTrack(Location location, NoteFrame[] notes) {

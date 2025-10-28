@@ -41,21 +41,15 @@
 package org.primesoft.midiplayer.midiparser;
 
 import org.primesoft.midiplayer.instruments.Instrument;
+import org.primesoft.midiplayer.instruments.InstrumentEntry;
 import org.primesoft.midiplayer.instruments.InstrumentMap;
+import org.primesoft.midiplayer.utils.InOutParam;
+import org.primesoft.midiplayer.utils.Pair;
+
+import javax.sound.midi.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaMessage;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-import org.primesoft.midiplayer.instruments.InstrumentEntry;
-import org.primesoft.midiplayer.utils.InOutParam;
-import org.primesoft.midiplayer.utils.Pair;
 
 /**
  *

@@ -40,21 +40,16 @@
  */
 package org.primesoft.midiplayer.instruments;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.primesoft.midiplayer.MidiPlayerMain;
+import org.primesoft.midiplayer.utils.InOutParam;
+import org.primesoft.midiplayer.utils.Utils;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-
-import org.primesoft.midiplayer.MidiPlayerMain;
-import org.primesoft.midiplayer.utils.InOutParam;
-import org.primesoft.midiplayer.utils.Utils;
 
 /**
  * Instrument map file parser

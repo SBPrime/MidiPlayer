@@ -44,9 +44,9 @@ import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
 /**
- * This is a global palayer track.
- * Music played by this track is heard all over the server
- * for selected players
+ * This is a specific players track.
+ * Music played by this track is only heard by
+ * the specified players
  * @author SBPrime
  */
 public class PlayerTrack extends BasePlayerTrack {

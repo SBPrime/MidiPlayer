@@ -1,0 +1,49 @@
+#Note | Sound patch | Base volume
+#D	block.note_block.basedrum	100%    #Default mapping
+35	block.note_block.snare		100%    #Acoustic Bass Drum
+36	block.note_block.snare		100%    #Bass Drum 1
+37	block.note_block.snare		100%    #Side Stick
+38	block.note_block.snare		100%    #Acoustic Snare
+39	block.note_block.snare		100%    #Hand Clap
+40	block.note_block.snare		100%    #Electric Snare
+41	block.note_block.snare		100%    #Low Floor Tom
+42	block.note_block.snare		100%    #Closed Hi Hat 
+43	block.note_block.snare		100%    #High Floor Tom
+44	block.note_block.snare		100%    #Pedal Hi-Hat
+45	block.note_block.snare		100%    #Low Tom 
+#46	block.note_block.basedrum	100%    #Open Hi-Hat
+47	block.note_block.snare		100%    #Low-Mid Tom
+48	block.note_block.snare		100%    #Hi-Mid Tom 
+#49	block.note_block.basedrum	100%    #Crash Cymbal 1
+50	block.note_block.snare		100%    #High Tom
+#51	block.note_block.basedrum	100%    #Ride Cymbal 1
+#52	block.note_block.basedrum	100%    #Chinese Cymbal 
+#53	block.note_block.basedrum	100%    #Ride Bell
+54	entity.experience_orb.touch	100%    #Tambourine
+#55	block.note_block.basedrum	100%    #Splash Cymbal 
+56	block.note_block.hat		100%    #Cowbell
+#57	block.note_block.basedrum	100%    #Crash Cymbal 2 
+#58	block.note_block.basedrum	100%    #Vibraslap
+#59	block.note_block.basedrum	100%    #Ride Cymbal 2 
+60	block.note_block.hat		100%    #Hi Bongo 
+61	block.note_block.hat		100%    #Low Bongo 
+62	block.note_block.hat		100%    #Mute Hi Conga 
+63	block.note_block.snare		100%    #Open Hi Conga 
+64	block.note_block.basedrum	100%    #Low Conga 
+65	block.note_block.snare		100%    #High Timbale 
+66	block.note_block.snare		100%    #Low Timbale 
+67	entity.experience_orb.touch	100%    #High Agogo 
+68	entity.experience_orb.touch	100%    #Low Agogo 
+#69	block.note_block.basedrum	100%    #Cabasa
+#70	block.note_block.basedrum	100%    #Maracas
+#71	block.note_block.basedrum	100%    #Short Whistle 
+#72	block.note_block.basedrum	100%    #Long Whistle
+73	block.note_block.hat		100%    #Short Guiro 
+#74	block.note_block.basedrum	100%    #Long Guiro 
+75	block.note_block.hat		100%    #Claves
+76	block.note_block.hat		100%    #Hi Wood Block 
+77	block.note_block.hat		100%    #Low Wood Block 
+#78	block.note_block.basedrum	100%    #Mute Cuica 
+#79	block.note_block.basedrum	100%    #Open Cuica 
+80	entity.experience_orb.touch	100%    #Mute Triangle 
+81	entity.experience_orb.touch	100%    #Open Triangle 

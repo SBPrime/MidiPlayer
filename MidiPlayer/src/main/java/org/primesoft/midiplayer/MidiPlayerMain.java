@@ -40,17 +40,30 @@
  */
 package org.primesoft.midiplayer;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Server;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.primesoft.midiplayer.commands.GlobalPlayMidiCommand;
-import org.primesoft.midiplayer.commands.PlayMidiCommand;
-import org.primesoft.midiplayer.commands.ReloadCommand;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.primesoft.midiplayer.commands.*;
+import org.primesoft.midiplayer.commands.suggestions.MIDISuggestionProvider;
+import org.primesoft.midiplayer.listeners.JukeboxListener;
+import org.primesoft.midiplayer.utils.CommandUtils;
+
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -58,7 +71,7 @@ import org.primesoft.midiplayer.commands.ReloadCommand;
  */
 public class MidiPlayerMain extends JavaPlugin {
 
-    private static final Logger s_log = Logger.getLogger("Minecraft.MidiPlayer");
+    private static Logger s_log;
     private static String s_prefix = null;
     private static final String s_logFormat = "%s %s";
 
@@ -83,17 +96,27 @@ public class MidiPlayerMain extends JavaPlugin {
     }
 
     /**
-     * Sent message directly to player
+     * Sent message directly to CommandSender and Console
      *
-     * @param player Player who is going to receive the message
+     * @param sender CommandSender who is going to receive the message
      * @param msg Message to send to the player
      */
-    public static void say(Player player, String msg) {
-        if (player == null) {
-            log(Level.INFO, msg);
-        } else {
-            player.sendRawMessage(msg);
+    public static void say(CommandSender sender, String msg) {
+        say(sender, msg, Level.INFO);
+    }
+
+    /**
+     * Sent message directly to CommandSender and Console
+     *
+     * @param sender Player who is going to receive the message
+     * @param msg Message to send to the player
+     * @param level Logging level of the message
+     */
+    public static void say(@Nullable CommandSender sender, String msg, Level level) {
+        if (sender != null && !(sender instanceof ConsoleCommandSender)) {
+            sender.sendMessage(msg);
         }
+        log(level, msg);
     }
 
     /**
@@ -120,6 +143,15 @@ public class MidiPlayerMain extends JavaPlugin {
      * The reload command handler
      */
     private ReloadCommand m_reloadCommandHandler;
+
+    /**
+     * The /givedisc command handler
+     */
+    private GiveDiscCommand giveDiscCommand;
+
+    public GiveDiscCommand getGiveDiscCommand() {
+        return giveDiscCommand;
+    }
     
     
     /**
@@ -135,6 +167,11 @@ public class MidiPlayerMain extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        s_log = getLogger();
+    }
+
+        @Override
     public void onEnable() {        
         Server server = getServer();
         PluginDescriptionFile desc = getDescription();
@@ -144,12 +181,14 @@ public class MidiPlayerMain extends JavaPlugin {
         m_version = desc.getVersion();
         m_musicPlayer = new MusicPlayer(this, server.getScheduler());
 
-        InitializeCommands();
+        initializeCommands();
                 
-        if (!m_reloadCommandHandler.ReloadConfig(null)) {
+        if (!m_reloadCommandHandler.reloadConfig(null)) {
             log(Level.WARNING, "Error loading config");
             return;
         }
+
+        GiveDiscCommand.initDiscYAML(this);
 
         super.onEnable();
     }
@@ -158,23 +197,116 @@ public class MidiPlayerMain extends JavaPlugin {
     /**
      * Initialize the commands
      */
-    private void InitializeCommands() {
+    private void initializeCommands() {
         m_reloadCommandHandler = new ReloadCommand(this);
         GlobalPlayMidiCommand playGlobalCommandHandler = new GlobalPlayMidiCommand(this, m_musicPlayer);
+        GlobalStopMidiCommand stopGlobalCommandHandler = new GlobalStopMidiCommand(this, m_musicPlayer);
         PlayMidiCommand playCommandHandler = new PlayMidiCommand(this, m_musicPlayer);
+        StopMidiCommand stopCommandHandler = new StopMidiCommand(this, m_musicPlayer);
+        giveDiscCommand = new GiveDiscCommand(this);
+        PlayMidiHereCommand playHereCommandHandler = new PlayMidiHereCommand(this, m_musicPlayer);
+        PlayMidiLocationCommand playLocationCommandHandler = new PlayMidiLocationCommand(this, m_musicPlayer);
+        StopFloatingMidiCommand stopFloatingCommandHandler = new StopFloatingMidiCommand(this, m_musicPlayer);
         
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents( playCommandHandler, this);
 
+        pm.registerEvents(new JukeboxListener(this),this);
+
         try {
-            PluginCommand commandPlayGlobal = getCommand("playglobalmidi");
-            commandPlayGlobal.setExecutor(playGlobalCommandHandler);
+            MIDISuggestionProvider songSuggestion = new MIDISuggestionProvider(this);
 
-            PluginCommand commandReload = getCommand("mpreload");
-            commandReload.setExecutor(m_reloadCommandHandler);
+            LiteralCommandNode<CommandSourceStack> commandReload = Commands.literal("mpreload")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.admin.reload"))
+                    .executes(m_reloadCommandHandler)
+                    .build();
 
-            PluginCommand commandPlay = getCommand("playmidi");
-            commandPlay.setExecutor(playCommandHandler);
+            LiteralCommandNode<CommandSourceStack> commandPlayGlobal = Commands.literal("playglobalmidi")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.playglobal"))
+                    .then(Commands.argument("song", StringArgumentType.string())
+                            .suggests(songSuggestion)
+                            .executes(playGlobalCommandHandler)
+                            .then(Commands.argument("loop", BoolArgumentType.bool())
+                                    .executes(playGlobalCommandHandler)))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandStopGlobal = Commands.literal("stopglobalmidi")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.playglobal"))
+                    .executes(stopGlobalCommandHandler)
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandPlay = Commands.literal("playmidi")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.play"))
+                    .then(Commands.argument("song", StringArgumentType.string())
+                            .suggests(songSuggestion)
+                            .executes(playCommandHandler)
+                            .then(Commands.argument("targets", ArgumentTypes.players())
+                                    .executes(playCommandHandler)))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandStop = Commands.literal("stopmidi")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.play"))
+                    .executes(stopCommandHandler)
+                    .then(Commands.argument("targets", ArgumentTypes.players())
+                            .executes(stopCommandHandler))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandPlayHere = Commands.literal("playmidihere")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.playrange"))
+                    .then(Commands.argument("song", StringArgumentType.string())
+                            .suggests(songSuggestion)
+                            .executes(playHereCommandHandler)
+                            .then(Commands.argument("range", DoubleArgumentType.doubleArg(0))
+                                    .executes(playHereCommandHandler)))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandPlayLocation = Commands.literal("playlocation")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.playrange"))
+                    .then(Commands.argument("song", StringArgumentType.string())
+                            .suggests(songSuggestion)
+                            .then(Commands.argument("location", ArgumentTypes.blockPosition())
+                                    .executes(playLocationCommandHandler)
+                                    .then(Commands.argument("range", DoubleArgumentType.doubleArg(0))
+                                            .executes(playLocationCommandHandler))))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandStopFloats = Commands.literal("stopfloats")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.playrange"))
+                    .executes(stopFloatingCommandHandler)
+                    .then(Commands.argument("also_jukeboxes", BoolArgumentType.bool())
+                            .executes(stopFloatingCommandHandler))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandGiveDisc = Commands.literal("givedisc")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.give"))
+                    .then(Commands.argument("song", StringArgumentType.string())
+                            .suggests(songSuggestion)
+                            .executes(giveDiscCommand)
+                            .then(Commands.argument("targets", ArgumentTypes.players())
+                                    .executes(giveDiscCommand)))
+                    .build();
+
+            LiteralCommandNode<CommandSourceStack> commandStopAll = Commands.literal("stopallmidi")
+                    .requires(sender -> sender.getSender().hasPermission("midiplayer.playglobal"))
+                    .executes(ctx -> {
+                        CommandUtils.stopAllPlayerTracks(m_musicPlayer);
+                        CommandUtils.stopAllJukeboxes(m_musicPlayer, false);
+                        return Command.SINGLE_SUCCESS;
+                    })
+                    .build();
+
+            this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
+                commands.registrar().register(commandReload, "Reloads all config files");
+                commands.registrar().register(commandPlayGlobal, "Play MIDI file for all players on the server", List.of("gplay"));
+                commands.registrar().register(commandStopGlobal, "Stop track being played globally", List.of("gstop"));
+                commands.registrar().register(commandPlay, "Play MIDI file for a player (defaults to self)", List.of("play"));
+                commands.registrar().register(commandStop, "Stop track for player (defaults to self)");
+                commands.registrar().register(commandPlayHere, "Play MIDI file for players around sender (defaults to current world)", List.of("playhere"));
+                commands.registrar().register(commandPlayLocation, "Play MIDI file for players around location (defaults to current world)");
+                commands.registrar().register(commandStopFloats, "Stop MIDIs being played in certain locations (defaults to not include jukeboxes)", List.of("stopfloatingmidis"));
+                commands.registrar().register(commandGiveDisc, "Give a MIDI disc to the specified player (defaults to self)");
+                commands.registrar().register(commandStopAll, "Stop all MIDIs being played");
+            });
         }
         catch (NullPointerException ex) {
             log(Level.WARNING, "Error initializing commands");

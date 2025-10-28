@@ -122,14 +122,14 @@ public abstract class BaseTrack {
      *
      * @return The list of players
      */
-    protected abstract Collection<? extends Player> getPlayers();
+    public abstract Collection<? extends Player> getPlayers();
 
     /**
      * Get the sound global location 
      * (if null then get player location will be used)
      * @return The location tu use for the sound
      */
-    protected Location getLocation() { return null; }
+    public Location getLocation() { return null; }
     
     /**
      * Get the sound location

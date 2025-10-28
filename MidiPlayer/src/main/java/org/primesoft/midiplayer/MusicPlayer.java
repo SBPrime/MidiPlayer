@@ -40,11 +40,12 @@
  */
 package org.primesoft.midiplayer;
 
-import org.primesoft.midiplayer.track.BaseTrack;
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
+import org.primesoft.midiplayer.track.BaseTrack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main player timer class
@@ -114,13 +115,15 @@ public class MusicPlayer implements Runnable {
      *
      * @param track The track to be removed from this MusicPlayer instance
      */
-    public void removeTrack(BaseTrack track) {
+    public boolean removeTrack(BaseTrack track) {
         if (track == null) {
-            return;
+            return false;
         }
+        boolean res;
         synchronized (m_playingTracks) {
-            m_playingTracks.remove(track);
+            res = m_playingTracks.remove(track);
         }
+        return res;
     }
 
     /**
